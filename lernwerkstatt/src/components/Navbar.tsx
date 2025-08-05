@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from "react-router-dom"
 import { Search, ShoppingCart, User, Menu, X, Gamepad2 } from 'lucide-react';
 
 const Navbar = () => {
@@ -18,10 +19,10 @@ const Navbar = () => {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <a href="#" className="hover:text-purple-400 transition-colors duration-200">Home</a>
-                        <a href="#" className="hover:text-purple-400 transition-colors duration-200">Konsolen</a>
-                        <a href="#" className="hover:text-purple-400 transition-colors duration-200">PC Gaming</a>
-                        <a href="#" className="hover:text-purple-400 transition-colors duration-200">Zubehör</a>
+                        <Link to="/" className="hover:text-purple-400 transition-colors duration-200">Home</Link>
+                        <Link to="/product/konsolen" className="hover:text-purple-400 transition-colors duration-200">Konsolen</Link>
+                        <Link to="/product/pc" className="hover:text-purple-400 transition-colors duration-200">PC Gaming</Link>
+                        <Link to="/product/zubehör" className="hover:text-purple-400 transition-colors duration-200">Zubehör</Link>
                     </div>
 
                     {/* Search Bar */}
