@@ -5,6 +5,7 @@ import Product from "./page/products.tsx"
 import FAQ from "./page/faq.tsx"
 import LoginPage from "./page/login.tsx"
 import RegisterPage from "./page/register.tsx"
+import ProductAdminPage from "./page/product-admin.tsx"
 
 import Home from "./page/home"
 
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/product-admin" element={<ProductAdminPage />} />
             </Routes>
             <Footer />
         </Router>
