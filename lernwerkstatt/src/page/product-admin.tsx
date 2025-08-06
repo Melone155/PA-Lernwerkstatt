@@ -287,7 +287,7 @@ export default function ProductAdminPage() {
                                         className={`h-5 w-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                                     />
                                 ))}
-                                <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+                                <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="space-y-1">
