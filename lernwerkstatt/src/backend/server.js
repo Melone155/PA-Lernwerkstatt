@@ -13,8 +13,6 @@ const corsOptions = {
     allowedHeaders: '*',
 };
 
-app.use('/payment/webhook', express.raw({ type: 'application/json' }));
-
 app.use(cors(corsOptions))
 
 app.use(express.json());
@@ -25,5 +23,5 @@ app.listen(PORT, () => {
 
 await connectDB();
 
-app.use('/dashboard', product);
+app.use('/product', product);
 
