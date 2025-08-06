@@ -6,6 +6,7 @@ import FAQ from "./page/faq.tsx"
 import LoginPage from "./page/login.tsx"
 import RegisterPage from "./page/register.tsx"
 import ProductAdminPage from "./page/product-admin.tsx"
+import Productdetails from "./page/productdetails.tsx";
 
 import Home from "./page/home"
 
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/product-admin" element={<ProductAdminPage />} />
+                <Route path="/productdetails/:productid" element={<Productdetails />} />
             </Routes>
             <Footer />
         </Router>
