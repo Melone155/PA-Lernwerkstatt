@@ -40,4 +40,27 @@ router.get('/all', async (req, res) => {
     }
 });
 
+
+router.post('/getproduct', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await client.connect();
+
+        if (!id){
+            res.status(404).json({message: "Produkt ID Fehlt"})
+        }
+
+        const product = await products.findOne({ _id: new ObjectId(id) });
+
+        if (!product){
+            res.status(404).json({message: "Kein Produkt gefunden"})
+        }
+
+        res.json(product);
+    } catch (error) {
+        console.error('Fehler beim Abrufen des Produkts:', error);
+        res.status(500).json({ message: 'Fehler beim Abrufen des Produkts', error: error.message });
+    }
+});
+
 export default router;
