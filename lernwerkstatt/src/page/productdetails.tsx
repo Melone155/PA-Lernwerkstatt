@@ -1,35 +1,50 @@
 import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+
+interface Product {
+    _id: string;
+    name: string;
+    price?: number;
+    originalPrice?: string;
+    image: string;
+    rating?: number;
+    reviews?: number;
+    description?: string;
+    features?: string[];
+    specs?: Record<string, string>;
+    stock?: number;
+    category?: string;
+}
 
 export default function ProductDetailsPage() {
     const { productid } = useParams()
+    const [product, setProduct] = useState<Product | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
-    // Mock-Produktdaten (in einer echten App würden diese aus einer API kommen)
-    const product = {
-        id: productid,
-        name: "Mechanical Gaming Keyboard",
-        originalPrice: "€199.99",
-        image: "https://images.pexels.com/photos/1194713/pexels-photo-1194713.jpeg?auto=compress&cs=tinysrgb&w=400",
-        rating: 4.9,
-        reviews: 127,
-        description: "Professionelle Gaming-Tastatur mit mechanischen Switches für präzises Feedback und langlebige Haltbarkeit. Perfekt für Gaming und professionelle Nutzung.",
-        features: [
-            "RGB-Beleuchtung mit 16.8 Millionen Farben",
-            "Mechanische Cherry MX Red Switches",
-            "Anti-Ghosting Technologie",
-            "USB-C Anschluss",
-            "Handballenauflage inklusive"
-        ],
-        specs: {
-            "Switch-Typ": "Cherry MX Red",
-            "Beleuchtung": "RGB",
-            "Anschluss": "USB-C",
-            "Gewicht": "1.2 kg",
-            "Abmessungen": "440 x 140 x 35 mm"
-        },
-        stock: 15,
-        category: "Gaming"
-    }
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/product/getproduct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: productid })
+                })
+                if (!res.ok) throw new Error('Produkt nicht gefunden')
+                const data = await res.json()
+                setProduct(data)
+            } catch (err: any) {
+                setError(err.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+        if (productid) fetchProduct()
+    }, [productid])
+
+    if (loading) return <div className="py-12 text-center text-gray-500">Produkt wird geladen...</div>
+    if (error || !product) return <div className="py-12 text-center text-red-500">{error || 'Produkt nicht gefunden'}</div>
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-100/60 to-cyan-100/40">
@@ -50,11 +65,13 @@ export default function ProductDetailsPage() {
                     {/* Produktbild */}
                     <div className="space-y-4">
                         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                            <img
-                                src={product.image}
-                                alt={product.name}
-                                className="w-full h-96 object-cover"
-                            />
+                            {product.image && (
+                                <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="w-full h-96 object-cover"
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -67,31 +84,33 @@ export default function ProductDetailsPage() {
                                     {[...Array(5)].map((_, i) => (
                                         <Star
                                             key={i}
-                                            className={`h-5 w-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                                            className={`h-5 w-5 ${product.rating && i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                                         />
                                     ))}
-                                    <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+                                    <span className="text-sm text-gray-600 ml-2">({product.rating ?? '-'})</span>
                                 </div>
-                                <span className="text-sm text-gray-600">{product.reviews} Bewertungen</span>
+                                <span className="text-sm text-gray-600">{product.reviews ?? 0} Bewertungen</span>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <div className="text-3xl font-bold text-purple-600">{product.originalPrice}</div>
+                            <div className="text-3xl font-bold text-purple-600">{product.price ? `€${product.price.toFixed(2)}` : product.originalPrice}</div>
+                            {product.originalPrice && product.price && (
+                                <div className="text-lg text-gray-500 line-through">{product.originalPrice}</div>
+                            )}
                         </div>
 
                         <div className="space-y-4">
                             <p className="text-gray-700 leading-relaxed">{product.description}</p>
-                            
                             <div className="space-y-2">
                                 <h3 className="font-semibold text-gray-900">Features:</h3>
                                 <ul className="space-y-1">
-                                    {product.features.map((feature, index) => (
+                                    {product.features && product.features.length > 0 ? product.features.map((feature, index) => (
                                         <li key={index} className="flex items-center text-sm text-gray-600">
                                             <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                                             {feature}
                                         </li>
-                                    ))}
+                                    )) : <li className="text-sm text-gray-400">Keine Features hinterlegt</li>}
                                 </ul>
                             </div>
                         </div>
@@ -103,9 +122,8 @@ export default function ProductDetailsPage() {
                                     <span>In den Warenkorb</span>
                                 </button>
                             </div>
-                            
                             <div className="text-sm text-gray-600">
-                                <span className="font-medium">Verfügbar:</span> {product.stock} Stück auf Lager
+                                <span className="font-medium">Verfügbar:</span> {product.stock ?? 0} Stück auf Lager
                             </div>
                         </div>
 
@@ -131,12 +149,12 @@ export default function ProductDetailsPage() {
                 <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">Technische Spezifikationen</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {Object.entries(product.specs).map(([key, value]) => (
+                        {product.specs && Object.entries(product.specs).length > 0 ? Object.entries(product.specs).map(([key, value]) => (
                             <div key={key} className="flex justify-between py-2 border-b border-gray-100">
                                 <span className="font-medium text-gray-700">{key}</span>
                                 <span className="text-gray-600">{value}</span>
                             </div>
-                        ))}
+                        )) : <div className="text-sm text-gray-400">Keine Spezifikationen hinterlegt</div>}
                     </div>
                 </div>
             </div>
