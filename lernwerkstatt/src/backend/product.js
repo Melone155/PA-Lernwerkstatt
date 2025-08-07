@@ -26,4 +26,18 @@ router.post('/create', async (req, res) => {
     }
 });
 
+router.get('/all', async (req, res) => {
+    try {
+        await client.connect();
+        const allProducts = await products.find({}).toArray();
+        res.json(allProducts);
+    } catch (error) {
+        console.error('Fehler beim Abrufen der Produkte:', error);
+        res.status(500).json({
+            message: 'Fehler beim Abrufen der Produkte',
+            error: error.message
+        });
+    }
+});
+
 export default router;
