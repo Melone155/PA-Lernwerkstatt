@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import { useCart } from "../components/Navbar"
 
 interface Product {
     _id: string;
@@ -22,6 +23,7 @@ export default function ProductDetailsPage() {
     const [product, setProduct] = useState<Product | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const { addToCart } = useCart()
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -42,6 +44,18 @@ export default function ProductDetailsPage() {
         }
         if (productid) fetchProduct()
     }, [productid])
+
+    const handleAddToCart = () => {
+        if (product) {
+            addToCart({
+                _id: product._id,
+                name: product.name,
+                price: product.price || 0,
+                image: product.image,
+                quantity: 1
+            })
+        }
+    }
 
     if (loading) return <div className="py-12 text-center text-gray-500">Produkt wird geladen...</div>
     if (error || !product) return <div className="py-12 text-center text-red-500">{error || 'Produkt nicht gefunden'}</div>
@@ -117,7 +131,10 @@ export default function ProductDetailsPage() {
 
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                                <button 
+                                    onClick={handleAddToCart}
+                                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                                >
                                     <ShoppingCart className="h-5 w-5" />
                                     <span>In den Warenkorb</span>
                                 </button>
