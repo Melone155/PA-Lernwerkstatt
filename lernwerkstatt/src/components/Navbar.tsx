@@ -1,9 +1,104 @@
-import { useState } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { Link } from "react-router-dom"
 import { Search, ShoppingCart, User, Menu, X, Gamepad2 } from 'lucide-react';
 
+// Cart Context
+interface CartItem {
+    _id: string;
+    name: string;
+    price: number;
+    image: string;
+    quantity: number;
+}
+
+interface CartContextType {
+    cart: CartItem[];
+    addToCart: (item: CartItem) => void;
+    removeFromCart: (id: string) => void;
+    updateQuantity: (id: string, quantity: number) => void;
+    clearCart: () => void;
+    cartCount: number;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const useCart = () => {
+    const context = useContext(CartContext);
+    if (!context) {
+        throw new Error('useCart must be used within a CartProvider');
+    }
+    return context;
+};
+
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+    const [cart, setCart] = useState<CartItem[]>([]);
+
+    // Load cart from localStorage on mount
+    useEffect(() => {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            setCart(JSON.parse(savedCart));
+        }
+    }, []);
+
+    // Save cart to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }, [cart]);
+
+    const addToCart = (item: CartItem) => {
+        setCart(prevCart => {
+            const existingItem = prevCart.find(cartItem => cartItem._id === item._id);
+            if (existingItem) {
+                return prevCart.map(cartItem =>
+                    cartItem._id === item._id
+                        ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+                        : cartItem
+                );
+            }
+            return [...prevCart, item];
+        });
+    };
+
+    const removeFromCart = (id: string) => {
+        setCart(prevCart => prevCart.filter(item => item._id !== id));
+    };
+
+    const updateQuantity = (id: string, quantity: number) => {
+        if (quantity <= 0) {
+            removeFromCart(id);
+            return;
+        }
+        setCart(prevCart =>
+            prevCart.map(item =>
+                item._id === id ? { ...item, quantity } : item
+            )
+        );
+    };
+
+    const clearCart = () => {
+        setCart([]);
+    };
+
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+    return (
+        <CartContext.Provider value={{
+            cart,
+            addToCart,
+            removeFromCart,
+            updateQuantity,
+            clearCart,
+            cartCount
+        }}>
+            {children}
+        </CartContext.Provider>
+    );
+};
+
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { cartCount } = useCart();
 
     return (
         <nav className="bg-gray-900 text-white shadow-lg sticky top-0 z-50">
@@ -42,10 +137,14 @@ const Navbar = () => {
                         <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors duration-200">
                             <User className="h-5 w-5" />
                         </button>
-                        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors duration-200 relative">
+                        <Link to="/cart" className="p-2 hover:bg-gray-800 rounded-lg transition-colors duration-200 relative">
                             <ShoppingCart className="h-5 w-5" />
-                            <span className="absolute -top-1 -right-1 bg-purple-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
-                        </button>
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-purple-500 text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
                     </div>
 
                     {/* Mobile menu button */}
@@ -82,10 +181,10 @@ const Navbar = () => {
                                 <User className="h-5 w-5" />
                                 <span>Anmelden</span>
                             </button>
-                            <button className="flex items-center space-x-2 hover:text-purple-400 transition-colors duration-200">
+                            <Link to="/cart" className="flex items-center space-x-2 hover:text-purple-400 transition-colors duration-200">
                                 <ShoppingCart className="h-5 w-5" />
-                                <span>Warenkorb (3)</span>
-                            </button>
+                                <span>Warenkorb ({cartCount})</span>
+                            </Link>
                         </div>
                     </div>
                 )}
