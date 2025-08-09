@@ -47,13 +47,13 @@ router.post('/getproduct', async (req, res) => {
         await client.connect();
 
         if (!id){
-            res.status(404).json({message: "Produkt ID Fehlt"})
+            return res.status(400).json({message: "Produkt ID Fehlt"})
         }
 
         const product = await products.findOne({ _id: new ObjectId(id) });
 
         if (!product){
-            res.status(404).json({message: "Kein Produkt gefunden"})
+            return res.status(404).json({message: "Kein Produkt gefunden"})
         }
 
         res.json(product);
