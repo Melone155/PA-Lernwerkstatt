@@ -1,10 +1,50 @@
-import { useCart } from "../components/Navbar"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 
+interface CartItem {
+    _id: string;
+    name: string;
+    price: number;
+    image: string;
+    quantity: number;
+}
+
 export default function CartPage() {
-    const { cart, removeFromCart, updateQuantity, cartCount } = useCart()
+    const [cart, setCart] = useState<CartItem[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            setCart(JSON.parse(savedCart));
+        }
+        setLoading(false);
+    }, [])
+
+    const removeFromCart = (id: string) => {
+        const newCart = cart.filter(item => item._id !== id);
+        setCart(newCart);
+        localStorage.setItem('cart', JSON.stringify(newCart));
+        window.dispatchEvent(new Event('storage'));
+    }
+
+    const updateQuantity = (id: string, quantity: number) => {
+        if (quantity <= 0) {
+            removeFromCart(id);
+            return;
+        }
+        const newCart = cart.map(item =>
+            item._id === id ? { ...item, quantity } : item
+        );
+        setCart(newCart);
+        localStorage.setItem('cart', JSON.stringify(newCart));
+        window.dispatchEvent(new Event('storage'));
+    }
 
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0)
+
+    if (loading) return <div className="py-12 text-center text-gray-500">Warenkorb wird geladen...</div>
 
     if (cartCount === 0) {
         return (
