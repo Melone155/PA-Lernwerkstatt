@@ -98,7 +98,34 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { cartCount } = useCart();
+    const [cartCount, setCartCount] = useState(0);
+
+    // Load cart count from localStorage
+    useEffect(() => {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            const cart = JSON.parse(savedCart);
+            const count = cart.reduce((total: number, item: any) => total + item.quantity, 0);
+            setCartCount(count);
+        }
+    }, []);
+
+    // Listen for cart changes
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const savedCart = localStorage.getItem('cart');
+            if (savedCart) {
+                const cart = JSON.parse(savedCart);
+                const count = cart.reduce((total: number, item: any) => total + item.quantity, 0);
+                setCartCount(count);
+            } else {
+                setCartCount(0);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     return (
         <nav className="bg-gray-900 text-white shadow-lg sticky top-0 z-50">
