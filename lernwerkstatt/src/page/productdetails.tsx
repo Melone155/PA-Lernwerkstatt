@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
-import { useCart } from "../components/Navbar"
 
 interface Product {
     _id: string;
@@ -23,8 +22,6 @@ export default function ProductDetailsPage() {
     const [product, setProduct] = useState<Product | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const { addToCart } = useCart()
-
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -47,13 +44,36 @@ export default function ProductDetailsPage() {
 
     const handleAddToCart = () => {
         if (product) {
-            addToCart({
-                _id: product._id,
-                name: product.name,
-                price: product.price || 0,
-                image: product.image,
-                quantity: 1
-            })
+            // Get existing cart from localStorage
+            const savedCart = localStorage.getItem('cart');
+            let cart = savedCart ? JSON.parse(savedCart) : [];
+            
+            // Check if product already exists in cart
+            const existingItem = cart.find((item: any) => item._id === product._id);
+            
+            if (existingItem) {
+                // Update quantity
+                cart = cart.map((item: any) => 
+                    item._id === product._id 
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                );
+            } else {
+                // Add new item
+                cart.push({
+                    _id: product._id,
+                    name: product.name,
+                    price: product.price || 0,
+                    image: product.image,
+                    quantity: 1
+                });
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Trigger storage event for navbar update
+            window.dispatchEvent(new Event('storage'));
         }
     }
 
