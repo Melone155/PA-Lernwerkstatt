@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Star, ShoppingCart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface Product {
     _id: string;
@@ -22,14 +22,32 @@ const ProductCard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { productType } = useParams();
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await fetch('http://localhost:5000/product/all');
-                if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
-                const data = await res.json();
-                setProducts(data);
+                let url = 'http://localhost:5000/product/all';
+                
+                // Wenn productType nicht "alle" ist, filtere nach Kategorie
+                if (productType && productType !== '*') {
+                    // Alle Produkte laden und dann filtern
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
+                    const data = await res.json();
+                    
+                    // Nach Kategorie filtern
+                    const filteredProducts = data.filter((product: Product) => 
+                        product.category && product.category.toLowerCase() === productType.toLowerCase()
+                    );
+                    setProducts(filteredProducts);
+                } else {
+                    // Alle Produkte laden
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
+                    const data = await res.json();
+                    setProducts(data);
+                }
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -37,7 +55,7 @@ const ProductCard: React.FC = () => {
             }
         };
         fetchProducts();
-    }, []);
+    }, [productType]);
 
     if (loading) return <div className="py-12 text-center text-gray-500">Produkte werden geladen...</div>;
     if (error) return <div className="py-12 text-center text-red-500">{error}</div>;
