@@ -28,21 +28,18 @@ const ProductCard: React.FC = () => {
         const fetchProducts = async () => {
             try {
                 let url = 'http://localhost:5000/product/all';
-                
-                // Wenn productType nicht "alle" ist, filtere nach Kategorie
+
                 if (productType && productType !== '*') {
-                    // Alle Produkte laden und dann filtern
                     const res = await fetch(url);
                     if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
                     const data = await res.json();
-                    
-                    // Nach Kategorie filtern
+
                     const filteredProducts = data.filter((product: Product) => 
                         product.category && product.category.toLowerCase() === productType.toLowerCase()
                     );
                     setProducts(filteredProducts);
                 } else {
-                    // Alle Produkte laden
+
                     const res = await fetch(url);
                     if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
                     const data = await res.json();

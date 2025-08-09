@@ -7,7 +7,6 @@ const client = new MongoClient(uri);
 const db = client.db("NextlvlHardware");
 const products = db.collection("products");
 
-// POST - Neues Produkt erstellen
 router.post('/create', async (req, res) => {
     try {
         await client.connect();

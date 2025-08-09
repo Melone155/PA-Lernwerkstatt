@@ -44,11 +44,10 @@ export default function ProductDetailsPage() {
 
     const handleAddToCart = () => {
         if (product) {
-            // Get existing cart from localStorage
+
             const savedCart = localStorage.getItem('cart');
             let cart = savedCart ? JSON.parse(savedCart) : [];
-            
-            // Check if product already exists in cart
+
             const existingItem = cart.find((item: any) => item._id === product._id);
             
             if (existingItem) {
@@ -59,7 +58,6 @@ export default function ProductDetailsPage() {
                         : item
                 );
             } else {
-                // Add new item
                 cart.push({
                     _id: product._id,
                     name: product.name,
@@ -68,11 +66,8 @@ export default function ProductDetailsPage() {
                     quantity: 1
                 });
             }
-            
-            // Save to localStorage
+
             localStorage.setItem('cart', JSON.stringify(cart));
-            
-            // Trigger storage event for navbar update
             window.dispatchEvent(new Event('storage'));
         }
     }
