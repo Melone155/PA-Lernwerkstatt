@@ -28,18 +28,21 @@ const ProductCard: React.FC = () => {
         const fetchProducts = async () => {
             try {
                 let url = 'http://localhost:5000/product/all';
-
+                
+                // Wenn productType nicht "alle" ist, filtere nach Kategorie
                 if (productType && productType !== '*') {
+                    // Alle Produkte laden und dann filtern
                     const res = await fetch(url);
                     if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
                     const data = await res.json();
-
+                    
+                    // Nach Kategorie filtern
                     const filteredProducts = data.filter((product: Product) => 
                         product.category && product.category.toLowerCase() === productType.toLowerCase()
                     );
                     setProducts(filteredProducts);
                 } else {
-
+                    // Alle Produkte laden
                     const res = await fetch(url);
                     if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
                     const data = await res.json();
@@ -56,6 +59,10 @@ const ProductCard: React.FC = () => {
 
     if (loading) return <div className="py-12 text-center text-gray-500">Produkte werden geladen...</div>;
     if (error) return <div className="py-12 text-center text-red-500">{error}</div>;
+
+    const handleClickTrack = async () => {
+        try { await fetch('http://localhost:5000/product/track/click', { method: 'POST' }); } catch {}
+    }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 py-12">
@@ -82,7 +89,7 @@ const ProductCard: React.FC = () => {
                             {product._id ? (
                                 <button
                                     className="hover:underline hover:text-purple-700 transition-colors"
-                                    onClick={() => navigate(`/productdetails/${product._id}`)}
+                                    onClick={async () => { await handleClickTrack(); navigate(`/productdetails/${product._id}`) }}
                                 >
                                     {product.name}
                                 </button>
@@ -114,7 +121,7 @@ const ProductCard: React.FC = () => {
                             </div>
                             <button
                                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105"
-                                onClick={() => product._id && navigate(`/productdetails/${product._id}`)}
+                                onClick={async () => { if (product._id) { await handleClickTrack(); navigate(`/productdetails/${product._id}`) } }}
                                 disabled={!product._id}
                             >
                                 Kaufen
