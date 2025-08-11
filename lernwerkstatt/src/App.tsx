@@ -9,10 +9,29 @@ import ProductAdminPage from "./page/product-admin.tsx"
 import Productdetails from "./page/productdetails.tsx";
 import CartPage from "./page/cart.tsx"
 import TestPage from "./Dashborad/statistics.tsx"
+import { useEffect } from "react"
 
 import Home from "./page/home"
 
 function App() {
+    useEffect(() => {
+        const key = 'lastVisitAt';
+        const last = localStorage.getItem(key);
+        const now = Date.now();
+        const THIRTY_MIN = 30 * 60 * 1000;
+        let shouldTrack = true;
+        if (last) {
+            const lastMs = parseInt(last, 10);
+            if (!Number.isNaN(lastMs) && now - lastMs < THIRTY_MIN) {
+                shouldTrack = false;
+            }
+        }
+        if (shouldTrack) {
+            fetch('http://localhost:5000/product/track/visit', { method: 'POST' }).catch(() => {})
+            localStorage.setItem(key, String(now));
+        }
+    }, [])
+
     return (
         <Router>
             <Navbar />
@@ -25,7 +44,9 @@ function App() {
                 <Route path="/product-admin" element={<ProductAdminPage />} />
                 <Route path="/productdetails/:productid" element={<Productdetails />} />
                 <Route path="/cart" element={<CartPage />} />
-                <Route path="/statistics" element={<TestPage />} />
+                <Route path="/statistics" element={<TestPage onBack={function(): void {
+                    throw new Error("Function not implemented.")
+                } } />} />
             </Routes>
             <Footer />
         </Router>
