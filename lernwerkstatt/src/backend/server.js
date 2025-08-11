@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from "express";
 import { connectDB } from "./dbconnection.js";
 import product from './product.js';
+import stats from "./stats.js";
 
 const app = express();
 const PORT = 5000;
@@ -24,4 +25,5 @@ app.listen(PORT, () => {
 await connectDB();
 
 app.use('/product', product);
+app.use('stats', stats);
 
