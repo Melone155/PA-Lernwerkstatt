@@ -3,7 +3,6 @@ import {
     Users,
     MousePointer,
     Calendar,
-    Clock,
     ShoppingCart,
     ArrowLeft
 } from 'lucide-react';
@@ -46,19 +45,9 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         { time: '23:00', visitors: 45, productClicks: 32 },
     ];
 
-    // Mock data für 30min Intervalle
-    const thirtyMinData: VisitorData[] = [
-        { time: '14:00', visitors: 45, productClicks: 23 },
-        { time: '14:30', visitors: 52, productClicks: 31 },
-        { time: '15:00', visitors: 38, productClicks: 19 },
-        { time: '15:30', visitors: 67, productClicks: 42 },
-        { time: '16:00', visitors: 73, productClicks: 38 },
-        { time: '16:30', visitors: 59, productClicks: 29 },
-    ];
-
     const getCurrentData = () => {
         if (timeRange === 'day') return hourlyData;
-        return thirtyMinData;
+        return hourlyData;
     };
 
     const getTotalStats = () => {
@@ -90,12 +79,6 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">Statistiken</h1>
                                 <p className="text-gray-600 mt-1">Besucher- und Klickanalyse</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-sm text-gray-600">Letztes Update</p>
-                                <p className="font-medium text-gray-900">{new Date().toLocaleTimeString('de-DE')}</p>
                             </div>
                         </div>
                     </div>
