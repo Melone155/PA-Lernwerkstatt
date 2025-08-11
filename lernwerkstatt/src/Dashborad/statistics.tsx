@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Users,
     MousePointer,
@@ -13,49 +13,50 @@ interface VisitorData {
     productClicks: number;
 }
 
+interface DayStats { day: string; hours: VisitorData[] }
+
 const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const timeRange = 'day'
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [data, setData] = useState<DayStats | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-    // Mock data für Stunden (0:00 - 23:59)
-    const hourlyData: VisitorData[] = [
-        { time: '00:00', visitors: 12, productClicks: 3 },
-        { time: '01:00', visitors: 8, productClicks: 1 },
-        { time: '02:00', visitors: 5, productClicks: 0 },
-        { time: '03:00', visitors: 3, productClicks: 0 },
-        { time: '04:00', visitors: 7, productClicks: 1 },
-        { time: '05:00', visitors: 15, productClicks: 4 },
-        { time: '06:00', visitors: 28, productClicks: 12 },
-        { time: '07:00', visitors: 45, productClicks: 23 },
-        { time: '08:00', visitors: 67, productClicks: 34 },
-        { time: '09:00', visitors: 89, productClicks: 45 },
-        { time: '10:00', visitors: 112, productClicks: 67 },
-        { time: '11:00', visitors: 134, productClicks: 78 },
-        { time: '12:00', visitors: 156, productClicks: 89 },
-        { time: '13:00', visitors: 145, productClicks: 82 },
-        { time: '14:00', visitors: 167, productClicks: 95 },
-        { time: '15:00', visitors: 189, productClicks: 108 },
-        { time: '16:00', visitors: 201, productClicks: 115 },
-        { time: '17:00', visitors: 178, productClicks: 98 },
-        { time: '18:00', visitors: 156, productClicks: 87 },
-        { time: '19:00', visitors: 134, productClicks: 76 },
-        { time: '20:00', visitors: 112, productClicks: 65 },
-        { time: '21:00', visitors: 89, productClicks: 54 },
-        { time: '22:00', visitors: 67, productClicks: 43 },
-        { time: '23:00', visitors: 45, productClicks: 32 },
-    ];
+    const formattedDay = useMemo(() => {
+        const d = new Date(selectedDate)
+        const pad2 = (n: number) => n.toString().padStart(2, '0')
+        return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`
+    }, [selectedDate])
 
-    const getCurrentData = () => {
-        if (timeRange === 'day') return hourlyData;
-        return hourlyData;
-    };
+    useEffect(() => {
+        const load = async () => {
+            try {
+                setLoading(true)
+                setError(null)
+                const res = await fetch('http://localhost:5000/stats/day', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ day: selectedDate })
+                })
+                if (!res.ok) throw new Error('Fehler beim Laden der Statistik')
+                const stats: DayStats = await res.json()
+                setData(stats)
+            } catch (e: any) {
+                setError(e.message)
+                setData(null)
+            } finally {
+                setLoading(false)
+            }
+        }
+        load()
+    }, [formattedDay])
+
+    const hourlyData: VisitorData[] = data?.hours ?? []
 
     const getTotalStats = () => {
-        const data = getCurrentData();
-        const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
-        const totalClicks = data.reduce((sum, item) => sum + item.productClicks, 0);
-        const conversionRate = totalClicks > 0 ? (totalClicks / totalVisitors) * 100 : 0;
-
+        const totalVisitors = hourlyData.reduce((sum, item) => sum + item.visitors, 0);
+        const totalClicks = hourlyData.reduce((sum, item) => sum + item.productClicks, 0);
+        const conversionRate = totalClicks > 0 && totalVisitors > 0 ? (totalClicks / totalVisitors) * 100 : 0;
         return { totalVisitors, totalClicks, conversionRate };
     };
 
@@ -102,7 +103,12 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     </div>
                 </div>
 
+                {loading && <div className="text-gray-600">Lade Statistik...</div>}
+                {error && <div className="text-red-600">{error}</div>}
+
                 {/* Stats Cards */}
+                {!loading && !error && (
+                <>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
                         <div className="flex items-center justify-between">
@@ -150,35 +156,31 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 {/* Chart */}
                 <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                        {timeRange === 'day'
-                            ? `Besucher & Klicks am ${new Date(selectedDate).toLocaleDateString('de-DE')} (0:00 - 23:59)`
-                            : 'Besucher & Klicks im Zeitverlauf'
-                        }
+                        Besucher & Klicks am {new Date(selectedDate).toLocaleDateString('de-DE')} (0:00 - 23:59)
                     </h3>
                     <div className="h-80 flex items-end justify-between gap-1 overflow-x-auto">
-                        {getCurrentData().map((data, index) => {
-                            const maxVisitors = Math.max(...getCurrentData().map(d => d.visitors));
-                            const maxClicks = Math.max(...getCurrentData().map(d => d.productClicks));
-
+                        {hourlyData.map((entry, index) => {
+                            const maxVisitors = Math.max(1, ...hourlyData.map(d => d.visitors));
+                            const maxClicks = Math.max(1, ...hourlyData.map(d => d.productClicks));
                             return (
                                 <div key={index} className="flex-1 min-w-[30px] flex flex-col items-center gap-2">
                                     <div className="w-full flex flex-col gap-1">
                                         <div
                                             className="bg-blue-500 rounded-t-lg transition-all duration-500 hover:bg-blue-600 cursor-pointer"
-                                            style={{ height: `${(data.visitors / maxVisitors) * 200}px` }}
-                                            title={`Besucher: ${data.visitors}`}
+                                            style={{ height: `${(entry.visitors / maxVisitors) * 200}px` }}
+                                            title={`Besucher: ${entry.visitors}`}
                                         ></div>
                                         <div
                                             className="bg-green-500 rounded-b-lg transition-all duration-500 hover:bg-green-600 cursor-pointer"
-                                            style={{ height: `${(data.productClicks / maxClicks) * 100}px` }}
-                                            title={`Klicks: ${data.productClicks}`}
+                                            style={{ height: `${(entry.productClicks / maxClicks) * 100}px` }}
+                                            title={`Klicks: ${entry.productClicks}`}
                                         ></div>
                                     </div>
                                     <span className="text-xs text-gray-600 font-medium transform -rotate-45 origin-center whitespace-nowrap">
-                    {data.time}
-                  </span>
+                                        {entry.time}
+                                    </span>
                                 </div>
-                            );
+                            )
                         })}
                     </div>
                     <div className="flex justify-center gap-6 mt-6">
@@ -192,8 +194,9 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </div>
                     </div>
                 </div>
+                </>) }
 
-                {/* Top Products */}
+                {/* Top Products - weiterhin Mock oder später DB */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Meistbesuchte Produkte</h3>
