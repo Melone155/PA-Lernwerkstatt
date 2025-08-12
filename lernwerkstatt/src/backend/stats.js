@@ -20,7 +20,7 @@ function initialHours(){
     return arr;
 }
 
-router.post('/stats/day', async (req, res) => {
+router.post('/day', async (req, res) => {
     try {
         await client.connect();
         const { day } = req.body || {};
