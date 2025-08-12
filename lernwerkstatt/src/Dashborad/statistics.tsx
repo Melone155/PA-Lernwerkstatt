@@ -28,26 +28,27 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`
     }, [selectedDate])
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                setLoading(true)
-                setError(null)
-                const res = await fetch('http://localhost:5000/stats/day', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ day: selectedDate })
-                })
-                if (!res.ok) throw new Error('Fehler beim Laden der Statistik')
-                const stats: DayStats = await res.json()
-                setData(stats)
-            } catch (e: any) {
-                setError(e.message)
-                setData(null)
-            } finally {
-                setLoading(false)
-            }
+    const load = async () => {
+        try {
+            setLoading(true)
+            setError(null)
+            const res = await fetch('http://localhost:5000/stats/day', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ day: selectedDate })
+            })
+            if (!res.ok) throw new Error('Fehler beim Laden der Statistik')
+            const stats: DayStats = await res.json()
+            setData(stats)
+        } catch (e: any) {
+            setError(e.message)
+            setData(null)
+        } finally {
+            setLoading(false)
         }
+    }
+
+    useEffect(() => {
         load()
     }, [formattedDay])
 
@@ -96,7 +97,10 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <input
                                 type="date"
                                 value={selectedDate}
-                                onChange={(e) => setSelectedDate(e.target.value)}
+                                onChange={(e) => {
+                                    setSelectedDate(e.target.value);
+                                    load();
+                                }}
                                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
