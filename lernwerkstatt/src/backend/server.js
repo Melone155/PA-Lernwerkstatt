@@ -25,5 +25,5 @@ app.listen(PORT, () => {
 await connectDB();
 
 app.use('/product', product);
-app.use('stats', stats);
+app.use('/stats', stats);
 
