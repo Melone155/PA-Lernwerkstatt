@@ -77,7 +77,6 @@ router.post('/getproduct', async (req, res) => {
 
 // Tracking: Besuch
 router.post('/track/visit', async (req, res) => {
-    console.log("test")
     try {
         await client.connect();
         const now = new Date();
@@ -112,26 +111,29 @@ router.post('/track/visit', async (req, res) => {
 router.post('/track/click', async (req, res) => {
     try {
         await client.connect();
+
         const now = new Date();
         const day = formatDay(now);
         const hourIndex = now.getHours();
+        const { productName } = req.body || {};
 
-        // 1) Stelle sicher, dass das Dokument existiert
         await stats.updateOne(
             { day },
-            { $setOnInsert: { day, hours: initialHours() } },
+            { $setOnInsert: { day, hours: initialHours(), products: {} } },
             { upsert: true }
         );
-        // 2) Falls vorhandenes Dokument kein 'hours' hat, initialisiere es
-        await stats.updateOne(
-            { day, hours: { $exists: false } },
-            { $set: { hours: initialHours() } }
-        );
-        // 3) Inkrementiere Klicks der aktuellen Stunde
+
         await stats.updateOne(
             { day },
             { $inc: { [`hours.${hourIndex}.productClicks`]: 1 } }
         );
+
+        const result = await stats.findOneAndUpdate(
+            { day },
+            { $inc: { [`products.${productName}`]: 1 } },
+            { returnDocument: 'after', upsert: true }
+        );
+
 
         return res.json({ ok: true });
     } catch (error) {
