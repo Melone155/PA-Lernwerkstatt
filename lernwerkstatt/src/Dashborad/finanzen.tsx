@@ -127,12 +127,6 @@ const Finance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 <p className="text-gray-600 mt-1">Einnahmen, Ausgaben und Gewinnanalyse</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-sm text-gray-600">Letztes Update</p>
-                                <p className="font-medium text-gray-900">{new Date().toLocaleTimeString('de-DE')}</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
