@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { useEffect } from "react"
 import Footer from "./components/Footer"
 import Navbar from "./components/Navbar"
 import Product from "./page/products.tsx"
@@ -8,8 +9,10 @@ import RegisterPage from "./page/register.tsx"
 import ProductAdminPage from "./page/product-admin.tsx"
 import Productdetails from "./page/productdetails.tsx";
 import CartPage from "./page/cart.tsx"
-import TestPage from "./Dashborad/statistics.tsx"
-import { useEffect } from "react"
+import Statistics from "./Dashborad/statistics.tsx"
+import Finanzen from "./Dashborad/finanzen.tsx";
+import Depot from "./Dashborad/lager.tsx"
+
 
 import Home from "./page/home"
 
@@ -44,9 +47,9 @@ function App() {
                 <Route path="/product-admin" element={<ProductAdminPage />} />
                 <Route path="/productdetails/:productid" element={<Productdetails />} />
                 <Route path="/cart" element={<CartPage />} />
-                <Route path="/statistics" element={<TestPage onBack={function(): void {
-                    throw new Error("Function not implemented.")
-                } } />} />
+                <Route path="/statistics" element={<Statistics onBack={() => window.history.back()} />} />
+                <Route path="/finanzen" element={<Finanzen onBack={() => window.history.back()} />} />
+                <Route path="/depot" element={<Depot onBack={() => window.history.back()} />} />
             </Routes>
             <Footer />
         </Router>
