@@ -6,6 +6,7 @@ import {
     ShoppingCart,
     ArrowLeft
 } from 'lucide-react';
+const BackendIP = import.meta.env.BackendIP;
 
 interface VisitorData {
     time: string;
@@ -32,7 +33,7 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         try {
             setLoading(true)
             setError(null)
-            const res = await fetch('http://localhost:5000/stats/day', {
+            const res = await fetch(`http://${BackendIP}:5000/stats/day`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ day: selectedDate })

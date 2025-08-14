@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Star, ShoppingCart } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
     _id: string;
@@ -27,17 +28,14 @@ const ProductCard: React.FC = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                let url = 'http://localhost:5000/product/all';
-                
-                // Wenn productType nicht "alle" ist, filtere nach Kategorie
+                let url = `http://${BackendIP}:5000/product/all`;
+
                 if (productType && productType !== '*') {
-                    // Alle Produkte laden und dann filtern
                     const res = await fetch(url);
                     if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
                     const data = await res.json();
-                    
-                    // Nach Kategorie filtern
-                    const filteredProducts = data.filter((product: Product) => 
+
+                    const filteredProducts = data.filter((product: Product) =>
                         product.category && product.category.toLowerCase() === productType.toLowerCase()
                     );
                     setProducts(filteredProducts);
@@ -61,7 +59,7 @@ const ProductCard: React.FC = () => {
     if (error) return <div className="py-12 text-center text-red-500">{error}</div>;
 
     const handleClickTrack = async () => {
-        try { await fetch('http://localhost:5000/product/track/click', { method: 'POST' }); } catch {}
+        try { await fetch(`http://${BackendIP}:5000/product/track/click`, { method: 'POST' }); } catch {}
     }
 
     return (
@@ -114,10 +112,7 @@ const ProductCard: React.FC = () => {
 
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <div className="text-2xl font-extrabold text-purple-600">{product.price ? `€${product.price.toFixed(2)}` : '-'}</div>
-                                {product.originalPrice && (
-                                    <div className="text-sm text-gray-500 line-through">{product.originalPrice}</div>
-                                )}
+                                <div className="text-2xl font-extrabold text-purple-600">{product.price} €</div>
                             </div>
                             <button
                                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105"

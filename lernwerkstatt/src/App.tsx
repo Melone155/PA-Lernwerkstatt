@@ -12,9 +12,9 @@ import CartPage from "./page/cart.tsx"
 import Statistics from "./Dashborad/statistics.tsx"
 import Finanzen from "./Dashborad/finanzen.tsx";
 import Depot from "./Dashborad/lager.tsx"
-
-
 import Home from "./page/home"
+
+const BackendIP = import.meta.env.BackendIP;
 
 function App() {
     useEffect(() => {
@@ -30,7 +30,7 @@ function App() {
             }
         }
         if (shouldTrack) {
-            fetch('http://localhost:5000/product/track/visit', { method: 'POST' }).catch(() => {})
+            fetch(`http://${BackendIP}:5000/product/track/visit`, { method: 'POST' }).catch(() => {})
             localStorage.setItem(key, String(now));
         }
     }, [])

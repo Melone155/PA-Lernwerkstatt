@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Star, ShoppingCart, Plus, X } from "lucide-react"
+const BackendIP = import.meta.env.BackendIP;
 
 export default function ProductAdminPage() {
     const [product, setProduct] = useState({
@@ -66,7 +67,7 @@ export default function ProductAdminPage() {
                 stock: parseInt(product.stock.toString()) || 0
             }
 
-            const response = await fetch('http://localhost:5000/product/create', {
+            const response = await fetch(`http://${BackendIP}:5000/product/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

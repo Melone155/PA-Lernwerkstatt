@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
     _id: string;
@@ -25,7 +26,7 @@ export default function ProductDetailsPage() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await fetch('http://localhost:5000/product/getproduct', {
+                const res = await fetch(`http://${BackendIP}:5000/product/getproduct`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: productid })
