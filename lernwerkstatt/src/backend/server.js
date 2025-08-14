@@ -14,12 +14,12 @@ const corsOptions = {
     allowedHeaders: '*',
 };
 
-app.use(cors(corsOptions))
+app.use(cors())
 
 app.use(express.json());
 
-app.listen(PORT, () => {
-    console.log(`Server läuft auf http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log("Server läuft auf http://192.168.254.12:5000");
 });
 
 await connectDB();
