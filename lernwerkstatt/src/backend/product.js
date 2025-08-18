@@ -25,7 +25,13 @@ router.post('/create', async (req, res) => {
     try {
         await client.connect();
 
-        const result = await products.insertOne(req.body);
+        const productData = {
+            ...req.body,
+            images: req.body.images || [req.body.image],
+            mainImage: req.body.mainImage || req.body.image || (req.body.images && req.body.images[0]) || ""
+        };
+
+        const result = await products.insertOne(productData);
         
         res.status(201).json({
             message: 'Produkt erfolgreich erstellt',
