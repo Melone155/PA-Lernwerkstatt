@@ -9,6 +9,8 @@ interface Product {
     price?: number;
     originalPrice?: string;
     image: string;
+    mainImage?: string;
+    images?: string[];
     rating?: number;
     reviews?: number;
     description?: string;
@@ -70,9 +72,9 @@ const ProductCard: React.FC = () => {
                     className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group w-full max-w-[300px] mx-auto"
                 >
                     <div className="relative overflow-hidden rounded-t-2xl h-48 bg-gray-100">
-                        {product.image ? (
+                        {(product.mainImage || product.image) ? (
                             <img
-                                src={product.image}
+                                src={product.mainImage || product.image}
                                 alt={product.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                             />
