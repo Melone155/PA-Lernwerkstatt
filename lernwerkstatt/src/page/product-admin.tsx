@@ -8,6 +8,8 @@ export default function ProductAdminPage() {
         price: "",
         originalPrice: "",
         image: "",
+        mainImage: "",
+        images: [""],
         rating: 0,
         reviews: 0,
         description: "",
@@ -44,6 +46,18 @@ export default function ProductAdminPage() {
         }))
     }
 
+    const addImage = () => {
+        setProduct(p => ({ ...p, images: [...p.images, ""] }))
+    }
+
+    const removeImage = (index: number) => {
+        setProduct(p => ({ ...p, images: p.images.filter((_, i) => i !== index) }))
+    }
+
+    const updateImage = (index: number, value: string) => {
+        setProduct(p => ({ ...p, images: p.images.map((img, i) => i === index ? value : img) }))
+    }
+
     const handleSave = async () => {
         try {
             // Konvertiere specs Array zu Object
@@ -54,13 +68,16 @@ export default function ProductAdminPage() {
                 return acc
             }, {} as Record<string, string>)
 
-            // Filtere leere Features
+            // Filtere leere Features und Bilder
             const filteredFeatures = product.features.filter(feature => feature.trim() !== "")
+            const filteredImages = product.images.filter(img => img.trim() !== "")
 
             const productData = {
                 ...product,
                 specs: specsObject,
                 features: filteredFeatures,
+                images: filteredImages,
+                mainImage: product.mainImage || filteredImages[0] || "",
                 price: parseFloat(product.price) || 0,
                 rating: parseFloat(product.rating.toString()) || 0,
                 reviews: parseInt(product.reviews.toString()) || 0,
@@ -83,6 +100,8 @@ export default function ProductAdminPage() {
                     price: "",
                     originalPrice: "",
                     image: "",
+                    mainImage: "",
+                    images: [""],
                     rating: 0,
                     reviews: 0,
                     description: "",
@@ -126,13 +145,46 @@ export default function ProductAdminPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-purple-700 mb-1">Bild-URL</label>
+                            <label className="block text-sm font-medium text-purple-700 mb-1">Hauptbild-URL</label>
                             <input
                                 type="text"
                                 className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                                value={product.image}
-                                onChange={e => setProduct(p => ({ ...p, image: e.target.value }))}
+                                value={product.mainImage}
+                                onChange={e => setProduct(p => ({ ...p, mainImage: e.target.value }))}
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-purple-700 mb-1">Weitere Bilder (mindestens 2)</label>
+                            <div className="space-y-2">
+                                {product.images.map((image, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Bild-URL"
+                                            className="flex-1 px-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                            value={image}
+                                            onChange={e => updateImage(index, e.target.value)}
+                                        />
+                                        {product.images.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="p-2 text-red-500 hover:text-red-700"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={addImage}
+                                    className="flex items-center gap-2 text-purple-600 hover:text-purple-700 text-sm"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Bild hinzufügen
+                                </button>
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -271,7 +323,7 @@ export default function ProductAdminPage() {
                     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full">
                         <div className="relative overflow-hidden rounded-t-2xl h-48 bg-gray-100">
                             <img
-                                src={product.image}
+                                src={product.mainImage || product.image}
                                 alt={product.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                             />
