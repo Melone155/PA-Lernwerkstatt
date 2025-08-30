@@ -18,7 +18,7 @@ app.use(cors())
 
 app.use(express.json());
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, "localhost", () => {
     console.log("Server läuft auf http://192.168.254.12:5000");
 });
 

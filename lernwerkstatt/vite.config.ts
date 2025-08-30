@@ -6,4 +6,7 @@ export default defineConfig({
     plugins: [
         tailwindcss(),
     ],
+    define: {
+        'import.meta.env.BackendIP': JSON.stringify(process.env.BACKEND_IP || 'localhost')
+    }
 })

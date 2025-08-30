@@ -1,6 +1,6 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-export const uri = "mongodb://DatabaseUser:BechtleAzubi2025@127.0.0.1:27017/?authMechanism=DEFAULT";
+export const uri = "mongodb://DatabaseUser:BechtleAzubi2025@127.0.0.1:55001/?authMechanism=DEFAULT";
 
 const client = new MongoClient(uri, {
     serverApi: {
