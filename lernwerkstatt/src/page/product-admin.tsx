@@ -1,13 +1,11 @@
 import { useState } from "react"
 import { Star, ShoppingCart, Plus, X } from "lucide-react"
-import { API_ENDPOINTS } from "../config/backend";
+const BackendIP = import.meta.env.BackendIP;
 
 export default function ProductAdminPage() {
     const [product, setProduct] = useState({
         name: "",
         price: "",
-        originalPrice: "",
-        image: "",
         mainImage: "",
         images: [""],
         rating: 0,
@@ -76,17 +74,14 @@ export default function ProductAdminPage() {
                 ...product,
                 specs: specsObject,
                 features: filteredFeatures,
-                images: filteredImages,
                 mainImage: product.mainImage || filteredImages[0] || "",
-                price: parseFloat(product.price) || 0,
+                price: product.price || "0",
                 rating: parseFloat(product.rating.toString()) || 0,
                 reviews: parseInt(product.reviews.toString()) || 0,
                 stock: parseInt(product.stock.toString()) || 0
             }
-
-            console.log('Backend URL:', API_ENDPOINTS.createProduct); // Debug-Log
             
-            const response = await fetch(API_ENDPOINTS.createProduct, {
+            const response = await fetch(`http://${BackendIP}:5000/product/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,8 +95,6 @@ export default function ProductAdminPage() {
                 setProduct({
                     name: "",
                     price: "",
-                    originalPrice: "",
-                    image: "",
                     mainImage: "",
                     images: [""],
                     rating: 0,
@@ -325,7 +318,7 @@ export default function ProductAdminPage() {
                     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full">
                         <div className="relative overflow-hidden rounded-t-2xl h-48 bg-gray-100">
                             <img
-                                src={product.mainImage || product.image}
+                                src={product.mainImage}
                                 alt={product.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                             />
@@ -345,12 +338,6 @@ export default function ProductAdminPage() {
                                 <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <div className="text-2xl font-extrabold text-purple-600">{product.price}</div>
-                                    {product.originalPrice && (
-                                        <div className="text-sm text-gray-500 line-through">{product.originalPrice}</div>
-                                    )}
-                                </div>
                                 <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105">
                                     Kaufen
                                 </button>

@@ -13,10 +13,18 @@ function formatDay(date){
     const d = new Date(date);
     return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
 }
-function initialHours(){
+function initialMinutes(){
     const arr = [];
     for(let h=0; h<24; h++){
-        arr.push({ time: `${pad2(h)}:00`, visitors: 0, productClicks: 0 });
+        for(let m=0; m<60; m++){
+            arr.push({ 
+                time: `${pad2(h)}:${pad2(m)}`, 
+                hour: h,
+                minute: m,
+                visitors: 0, 
+                productClicks: 0 
+            });
+        }
     }
     return arr;
 }
@@ -59,6 +67,26 @@ router.get('/all', async (req, res) => {
     }
 });
 
+router.get('/randomproducts', async (req, res) => {
+    try {
+        await client.connect();
+        const { limit = 4 } = req.query;
+        
+        // Aggregation Pipeline für zufällige Produkte
+        const randomProducts = await products.aggregate([
+            { $sample: { size: parseInt(limit) } }
+        ]).toArray();
+        
+        res.json(randomProducts);
+    } catch (error) {
+        console.error('Fehler beim Abrufen zufälliger Produkte:', error);
+        res.status(500).json({
+            message: 'Fehler beim Abrufen zufälliger Produkte',
+            error: error.message
+        });
+    }
+});
+
 router.post('/getproduct', async (req, res) => {
     const { id } = req.body;
     try {
@@ -87,23 +115,25 @@ router.post('/track/visit', async (req, res) => {
         await client.connect();
         const now = new Date();
         const day = formatDay(now);
-        const hourIndex = now.getHours();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const minuteIndex = hour * 60 + minute;
 
         // 1) Stelle sicher, dass das Dokument existiert
         await stats.updateOne(
             { day },
-            { $setOnInsert: { day, hours: initialHours() } },
+            { $setOnInsert: { day, minutes: initialMinutes() } },
             { upsert: true }
         );
-        // 2) Falls vorhandenes Dokument kein 'hours' hat, initialisiere es
+        // 2) Falls vorhandenes Dokument kein 'minutes' hat, initialisiere es
         await stats.updateOne(
-            { day, hours: { $exists: false } },
-            { $set: { hours: initialHours() } }
+            { day, minutes: { $exists: false } },
+            { $set: { minutes: initialMinutes() } }
         );
-        // 3) Inkrementiere Besucher der aktuellen Stunde
+        // 3) Inkrementiere Besucher der aktuellen Minute
         await stats.updateOne(
             { day },
-            { $inc: { [`hours.${hourIndex}.visitors`]: 1 } }
+            { $inc: { [`minutes.${minuteIndex}.visitors`]: 1 } }
         );
 
         return res.json({ ok: true });
@@ -120,18 +150,20 @@ router.post('/track/click', async (req, res) => {
 
         const now = new Date();
         const day = formatDay(now);
-        const hourIndex = now.getHours();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const minuteIndex = hour * 60 + minute;
         const { productName } = req.body || {};
 
         await stats.updateOne(
             { day },
-            { $setOnInsert: { day, hours: initialHours(), products: {} } },
+            { $setOnInsert: { day, minutes: initialMinutes(), products: {} } },
             { upsert: true }
         );
 
         await stats.updateOne(
             { day },
-            { $inc: { [`hours.${hourIndex}.productClicks`]: 1 } }
+            { $inc: { [`minutes.${minuteIndex}.productClicks`]: 1 } }
         );
 
         const result = await stats.findOneAndUpdate(
@@ -139,7 +171,6 @@ router.post('/track/click', async (req, res) => {
             { $inc: { [`products.${productName}`]: 1 } },
             { returnDocument: 'after', upsert: true }
         );
-
 
         return res.json({ ok: true });
     } catch (error) {
