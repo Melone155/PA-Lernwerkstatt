@@ -9,6 +9,7 @@ import {
     Mouse,
     Smartphone,
 } from 'lucide-react';
+import {Link} from "react-router-dom";
 const BACKEND_IP = import.meta.env.VITE_BACKEND_IP || 'localhost';
 const API_ENDPOINTS = {
     getRandomProducts: `http://${BACKEND_IP}:5000/product/randomproducts`
@@ -197,9 +198,9 @@ function App() {
                     )}
 
                     <div className="text-center mt-12">
-                        <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                        <Link to={"product/*"} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
                             Alle Produkte anzeigen
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </section>
