@@ -2,14 +2,12 @@ import { useState, useEffect } from 'react';
 import {
     ShoppingCart,
     Star,
-    Zap,
     Monitor,
     Gamepad,
     Headphones,
     Keyboard,
     Mouse,
     Smartphone,
-    RefreshCw,
 } from 'lucide-react';
 const BACKEND_IP = import.meta.env.VITE_BACKEND_IP || 'localhost';
 const API_ENDPOINTS = {
@@ -56,10 +54,6 @@ function App() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const refreshProducts = () => {
-        fetchRandomProducts();
     };
 
     useEffect(() => {
@@ -110,24 +104,12 @@ function App() {
             <section className="py-20 bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <div className="flex items-center justify-center space-x-2 text-purple-600 mb-4">
-                            <Zap className="h-5 w-5" />
-                            <span className="text-sm font-medium uppercase tracking-wide">Zufällige Produkte</span>
-                        </div>
                         <h2 className="text-4xl font-bold text-gray-900 mb-4">
                             Entdecke neue Gaming Produkte
                         </h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Jeden Tag neue zufällige Produkte aus unserem Sortiment
+                            Jeden Tag neue Produkte aus unserem Sortiment
                         </p>
-                        <button 
-                            onClick={refreshProducts}
-                            disabled={loading}
-                            className="mt-4 flex items-center gap-2 mx-auto bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            Neue Produkte laden
-                        </button>
                     </div>
 
                     {loading ? (
