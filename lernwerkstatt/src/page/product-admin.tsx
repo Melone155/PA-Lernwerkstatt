@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Star, ShoppingCart, Plus, X } from "lucide-react"
-import { API_ENDPOINTS } from "../config/backend";
+const API_ENDPOINTS = import.meta.env.BackendIP;
 
 export default function ProductAdminPage() {
     const [product, setProduct] = useState({
