@@ -32,22 +32,22 @@ const ProductCard: React.FC = () => {
             try {
                 let url = `http://${BackendIP}:5000/product/all`;
 
-                if (productType && productType !== '*') {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
-                    const data = await res.json();
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
+                const data = await res.json();
 
+                if (productType && productType !== '*') {
                     const filteredProducts = data.filter((product: Product) =>
-                        product.category && product.category.toLowerCase() === productType.toLowerCase()
+                        Array.isArray(product.category) &&
+                        product.category.some(
+                            (cat: string) => cat.toLowerCase() === productType.toLowerCase()
+                        )
                     );
                     setProducts(filteredProducts);
                 } else {
-                    // Alle Produkte laden
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
-                    const data = await res.json();
                     setProducts(data);
                 }
+
             } catch (err: any) {
                 setError(err.message);
             } finally {
