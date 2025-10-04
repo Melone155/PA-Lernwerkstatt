@@ -204,9 +204,7 @@ export default function ProductDetailsPage() {
 
                         <div className="space-y-2">
                             <div className="text-3xl font-bold text-purple-600">
-                                {product.price
-                                    ? `€${Number(product.price).toFixed(2)}`
-                                    : product.originalPrice}
+                                {product.price}
                             </div>
                         </div>
 
@@ -348,9 +346,7 @@ export default function ProductDetailsPage() {
                                         <div className="flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <div className="text-2xl font-extrabold text-gray-900">
-                                                    {relatedProduct.price
-                                                        ? `€${Number(relatedProduct.price).toFixed(2)}`
-                                                        : relatedProduct.originalPrice}
+                                                    {product.price}
                                                 </div>
                                             </div>
                                             <button
