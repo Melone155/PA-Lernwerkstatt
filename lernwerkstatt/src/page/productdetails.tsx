@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import { useParams, useNavigate } from "react-router-dom"
+import { useEffect, useState, useRef } from "react"
+import { Star, ShoppingCart, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react"
 const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
@@ -22,10 +22,14 @@ interface Product {
 
 export default function ProductDetailsPage() {
     const { productid } = useParams()
+    const navigate = useNavigate()
     const [product, setProduct] = useState<Product | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [selectedImage, setSelectedImage] = useState<string>("")
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -37,7 +41,7 @@ export default function ProductDetailsPage() {
                 if (!res.ok) throw new Error('Produkt nicht gefunden')
                 const data = await res.json()
                 setProduct(data)
-                // Setze das Hauptbild als ausgewähltes Bild
+
                 setSelectedImage(data.mainImage || data.image || "")
             } catch (err: any) {
                 setError(err.message)
@@ -45,8 +49,35 @@ export default function ProductDetailsPage() {
                 setLoading(false)
             }
         }
+
         if (productid) fetchProduct()
+
+        const testdata = async () => {
+            let url = `http://${BackendIP}:5000/product/similar`;
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
+            const data = await res.json();
+
+            setRelatedProducts(data.filter((p: Product) => p._id !== productid).slice(0, 10))
+        }
+
+        testdata()
     }, [productid])
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollContainerRef.current) {
+            const scrollAmount = 320
+            const newScrollLeft = direction === 'left'
+                ? scrollContainerRef.current.scrollLeft - scrollAmount
+                : scrollContainerRef.current.scrollLeft + scrollAmount
+
+            scrollContainerRef.current.scrollTo({
+                left: newScrollLeft,
+                behavior: 'smooth'
+            })
+        }
+    }
 
     const handleAddToCart = () => {
         if (product) {
@@ -55,11 +86,11 @@ export default function ProductDetailsPage() {
             let cart = savedCart ? JSON.parse(savedCart) : [];
 
             const existingItem = cart.find((item: any) => item._id === product._id);
-            
+
             if (existingItem) {
                 // Update quantity
-                cart = cart.map((item: any) => 
-                    item._id === product._id 
+                cart = cart.map((item: any) =>
+                    item._id === product._id
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
@@ -109,7 +140,7 @@ export default function ProductDetailsPage() {
                                 />
                             )}
                         </div>
-                        
+
                         {/* Bildergalerie Thumbnails */}
                         {product.images && product.images.length > 0 && (
                             <div className="flex gap-2 overflow-x-auto pb-2">
@@ -118,8 +149,8 @@ export default function ProductDetailsPage() {
                                     <button
                                         onClick={() => setSelectedImage(product.mainImage || product.image || "")}
                                         className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                                            selectedImage === (product.mainImage || product.image) 
-                                                ? 'border-purple-500' 
+                                            selectedImage === (product.mainImage || product.image)
+                                                ? 'border-purple-500'
                                                 : 'border-gray-200 hover:border-purple-300'
                                         }`}
                                     >
@@ -130,15 +161,15 @@ export default function ProductDetailsPage() {
                                         />
                                     </button>
                                 )}
-                                
+
                                 {/* Weitere Bilder */}
                                 {product.images.map((image, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImage(image)}
                                         className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                                            selectedImage === image 
-                                                ? 'border-purple-500' 
+                                            selectedImage === image
+                                                ? 'border-purple-500'
                                                 : 'border-gray-200 hover:border-purple-300'
                                         }`}
                                     >
@@ -172,10 +203,11 @@ export default function ProductDetailsPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <div className="text-3xl font-bold text-purple-600">{product.price ? `€${product.price.toFixed(2)}` : product.originalPrice}</div>
-                            {product.originalPrice && product.price && (
-                                <div className="text-lg text-gray-500 line-through">{product.originalPrice}</div>
-                            )}
+                            <div className="text-3xl font-bold text-purple-600">
+                                {product.price
+                                    ? `€${Number(product.price).toFixed(2)}`
+                                    : product.originalPrice}
+                            </div>
                         </div>
 
                         <div className="space-y-4">
@@ -195,7 +227,7 @@ export default function ProductDetailsPage() {
 
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <button 
+                                <button
                                     onClick={handleAddToCart}
                                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
                                 >
@@ -238,6 +270,103 @@ export default function ProductDetailsPage() {
                         )) : <div className="text-sm text-gray-400">Keine Spezifikationen hinterlegt</div>}
                     </div>
                 </div>
+
+                {/* Produktvorschläge */}
+                {relatedProducts.length > 0 && (
+                    <div className="mb-16">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-2xl font-bold text-gray-900">Das könnte Ihnen auch gefallen</h2>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => scroll('left')}
+                                    className="bg-white hover:bg-gray-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                                    aria-label="Nach links scrollen"
+                                >
+                                    <ChevronLeft className="h-6 w-6" />
+                                </button>
+                                <button
+                                    onClick={() => scroll('right')}
+                                    className="bg-white hover:bg-gray-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                                    aria-label="Nach rechts scrollen"
+                                >
+                                    <ChevronRight className="h-6 w-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            ref={scrollContainerRef}
+                            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            {relatedProducts.map((relatedProduct) => (
+                                <div
+                                    key={relatedProduct._id}
+                                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group flex-shrink-0 w-[300px] snap-start"
+                                >
+                                    <div className="relative overflow-hidden rounded-t-2xl h-48 bg-gray-100">
+                                        {(relatedProduct.mainImage || relatedProduct.image) ? (
+                                            <img
+                                                src={relatedProduct.mainImage || relatedProduct.image}
+                                                alt={relatedProduct.name}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                            />
+                                        ) : null}
+                                        <button className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white">
+                                            <ShoppingCart className="h-4 w-4 text-gray-700" />
+                                        </button>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <h3 className="font-bold text-gray-900 text-lg mb-3">
+                                            {relatedProduct._id ? (
+                                                <button
+                                                    className="hover:underline hover:text-gray-700 transition-colors text-left"
+                                                    onClick={async () => { navigate(`/productdetails/${relatedProduct._id}`) }}
+                                                >
+                                                    {relatedProduct.name}
+                                                </button>
+                                            ) : (
+                                                relatedProduct.name
+                                            )}
+                                        </h3>
+
+                                        <div className="flex items-center mb-4">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star
+                                                    key={i}
+                                                    className={`h-5 w-5 ${
+                                                        relatedProduct.rating && i < Math.floor(relatedProduct.rating)
+                                                            ? 'text-yellow-400 fill-current'
+                                                            : 'text-gray-300'
+                                                    }`}
+                                                />
+                                            ))}
+                                            <span className="text-sm text-gray-600 ml-2">({relatedProduct.rating ?? '-'})</span>
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <div className="text-2xl font-extrabold text-gray-900">
+                                                    {relatedProduct.price
+                                                        ? `€${Number(relatedProduct.price).toFixed(2)}`
+                                                        : relatedProduct.originalPrice}
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105"
+                                                onClick={async () => { if (relatedProduct._id) {navigate(`/productdetails/${relatedProduct._id}`) } }}
+                                                disabled={!relatedProduct._id}
+                                            >
+                                                Ansehen
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
