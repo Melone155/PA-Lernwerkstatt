@@ -80,6 +80,21 @@ export default function ProductDetailsPage() {
         }
     }
 
+    const handleRating = async () => {
+        try {
+            const res = await fetch(`http://${BackendIP}:5000/product/setrating`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: rating, id: productid })
+            })
+            if (!res.ok) throw new Error('Fehler beim Senden der Bewertung')
+            const data = await res.json()
+            console.log(data)
+        } catch (err: any) {
+            setError(err.message)
+        }
+    }
+
     if (loading) return <div className="py-12 text-center text-gray-500">Produkt wird geladen...</div>
     if (error || !product) return <div className="py-12 text-center text-red-500">{error || 'Produkt nicht gefunden'}</div>
 
@@ -278,7 +293,7 @@ export default function ProductDetailsPage() {
                             <div className="text-center animate-fadeIn">
                                 <button
                                     className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
-                                    onClick={() => alert(`Vielen Dank für deine ${rating}-Sterne-Bewertung!`)}
+                                    onClick={() => handleRating()}
                                 >
                                     Bewertung absenden
                                 </button>
