@@ -18,6 +18,26 @@ export default function ProductAdminPage() {
         features: [""],
         specs: [{ key: "", value: "" }]
     })
+    const [inputValue, setInputValue] = useState("");
+    const [categories, setCategories] = useState<string[]>([]);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if ((e.key === "Enter" || e.key === ",") && inputValue.trim() !== "") {
+            e.preventDefault();
+            const newCategory = inputValue.trim();
+
+            if (!categories.includes(newCategory)) {
+                setCategories([...categories, newCategory]);
+            }
+
+            setInputValue("");
+        }
+    };
+
+
+    const removeCategory = (cat: string) => {
+        setCategories(categories.filter(c => c !== cat));
+    };
 
     const addFeature = () => {
         setProduct(p => ({ ...p, features: [...p.features, ""] }))
@@ -232,13 +252,34 @@ export default function ProductAdminPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-purple-700 mb-1">Kategorie</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                                value={product.category}
-                                onChange={e => setProduct(p => ({ ...p, category: e.target.value }))}
-                            />
+                            <label className="block text-sm font-medium text-purple-700 mb-1">
+                                Kategorien
+                            </label>
+
+                            <div className="flex flex-wrap items-center gap-2 border border-purple-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-cyan-400">
+                                {categories.map((cat, index) => (
+                                    <span
+                                        key={index}
+                                        className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full flex items-center gap-2">
+                                        {cat}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeCategory(cat)}
+                                            className="text-purple-500 hover:text-red-500">
+                                          ✕
+                                        </button>
+                                    </span>
+                                ))}
+
+                                <input
+                                    type="text"
+                                    className="flex-grow min-w-[100px] focus:outline-none"
+                                    placeholder="Kategorie hinzufügen..."
+                                    value={inputValue}
+                                    onChange={e => setInputValue(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-purple-700 mb-1">Features</label>
