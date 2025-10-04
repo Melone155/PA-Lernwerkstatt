@@ -179,4 +179,45 @@ router.post('/track/click', async (req, res) => {
     }
 });
 
+router.post('/rating', async (req, res) => {
+    const { id, rating } = req.body;
+
+    try {
+        await client.connect();
+
+        if (!id) {
+            return res.status(400).json({ message: "Produkt ID fehlt" });
+        }
+
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ message: "Ungültige Bewertung, muss zwischen 1 und 5 sein" });
+        }
+
+        const product = await products.findOne({ _id: new ObjectId(id) });
+
+        if (!product) {
+            return res.status(404).json({ message: "Kein Produkt gefunden" });
+        }
+
+        const currentAverage = product.averageRating || 0;
+        const currentCount = product.ratingCount || 0;
+
+        const newAverage = ((currentAverage * currentCount) + rating) / (currentCount + 1);
+
+        await products.updateOne(
+            { _id: new ObjectId(id) },
+            {
+                $set: { averageRating: parseFloat(newAverage.toFixed(1)) },
+                $inc: { ratingCount: 1 }
+            }
+        );
+
+        return res.json({ ok: true });
+
+    } catch (error) {
+        console.error('Fehler beim Speichern der Bewertung:', error);
+        res.status(500).json({ message: 'Fehler beim Speichern der Bewertung', error: error.message });
+    }
+});
+
 export default router;
