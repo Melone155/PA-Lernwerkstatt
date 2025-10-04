@@ -1,19 +1,18 @@
 import { useState } from "react"
 import { Star, ShoppingCart, Plus, X } from "lucide-react"
-const API_ENDPOINTS = import.meta.env.BackendIP;
+const BackendIP = import.meta.env.BackendIP;
 
 export default function ProductAdminPage() {
     const [product, setProduct] = useState({
         name: "",
         price: "",
-        originalPrice: "",
         image: "",
         mainImage: "",
         images: [""],
         rating: 0,
         reviews: 0,
         description: "",
-        category: "",
+        category: [""],
         stock: 0,
         features: [""],
         specs: [{ key: "", value: "" }]
@@ -100,12 +99,13 @@ export default function ProductAdminPage() {
                 price: parseFloat(product.price) || 0,
                 rating: parseFloat(product.rating.toString()) || 0,
                 reviews: parseInt(product.reviews.toString()) || 0,
-                stock: parseInt(product.stock.toString()) || 0
+                stock: parseInt(product.stock.toString()) || 0,
+                category: categories || [""]
             }
 
-            console.log('Backend URL:', API_ENDPOINTS.createProduct); // Debug-Log
-            
-            const response = await fetch(API_ENDPOINTS.createProduct, {
+            console.log('Product Data:', productData)
+
+            const response = await fetch(`http://${BackendIP}:5000/product/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -119,14 +119,13 @@ export default function ProductAdminPage() {
                 setProduct({
                     name: "",
                     price: "",
-                    originalPrice: "",
                     image: "",
                     mainImage: "",
                     images: [""],
                     rating: 0,
                     reviews: 0,
                     description: "",
-                    category: "",
+                    category: [""],
                     stock: 0,
                     features: [""],
                     specs: [{ key: "", value: "" }]
@@ -387,9 +386,6 @@ export default function ProductAdminPage() {
                             <div className="flex items-center justify-between">
                                 <div className="space-y-1">
                                     <div className="text-2xl font-extrabold text-purple-600">{product.price}</div>
-                                    {product.originalPrice && (
-                                        <div className="text-sm text-gray-500 line-through">{product.originalPrice}</div>
-                                    )}
                                 </div>
                                 <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105">
                                     Kaufen
