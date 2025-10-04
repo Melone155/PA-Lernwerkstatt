@@ -22,7 +22,7 @@ export default function ProductAdminPage() {
     const [categories, setCategories] = useState<string[]>([]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if ((e.key === "Enter" || e.key === ",") && inputValue.trim() !== "") {
+        if ((e.key === "Enter" || e.key === "," || e.key === " ") && inputValue.trim() !== "") {
             e.preventDefault();
             const newCategory = inputValue.trim();
 
@@ -33,7 +33,6 @@ export default function ProductAdminPage() {
             setInputValue("");
         }
     };
-
 
     const removeCategory = (cat: string) => {
         setCategories(categories.filter(c => c !== cat));
