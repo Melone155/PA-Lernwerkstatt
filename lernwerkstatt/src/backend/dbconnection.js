@@ -1,6 +1,6 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-export const uri = "mongodb://DatabaseUser:BechtleAzubi2025@127.0.0.1:55001/?authMechanism=DEFAULT";
+export const uri = "mongodb://DatabaseUser:BechtleAzubi2025@147.189.175.136:27017/?authMechanism=DEFAULT&authSource=NextlvlHardware";
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -13,10 +13,10 @@ const client = new MongoClient(uri, {
 let db;
 
 export async function connectDB() {
+    console.log("Verbindung zu MongoDB herstellen...");
     try {
         await client.connect();
-        db = client.db("fuchshost");
-        console.log("Verbindung zu MongoDB erfolgreich");
+        db = client.db("NextlvlHardware");
     } catch (error) {
         console.error("Fehler bei der Verbindung zu MongoDB:", error);
         process.exit(1);
