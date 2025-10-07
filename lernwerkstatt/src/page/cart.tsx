@@ -82,7 +82,7 @@ export default function CartPage() {
                                         <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg border" />
                                         <span className="font-medium text-gray-900">{item.name}</span>
                                     </td>
-                                    <td className="py-4 text-purple-700 font-bold">€{item.price.toFixed(2)}</td>
+                                    <div className="text-2xl font-extrabold text-purple-600">{item.price} €</div>
                                     <td className="py-4">
                                         <div className="flex items-center gap-2">
                                             <button 
