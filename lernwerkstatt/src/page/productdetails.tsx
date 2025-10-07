@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import { Star, ShoppingCart, Truck, Shield, RotateCcw, Heart } from "lucide-react"
 const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
@@ -26,6 +26,8 @@ export default function ProductDetailsPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [selectedImage, setSelectedImage] = useState<string>("")
+    const [isFavorite, setIsFavorite] = useState(false)
+
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -46,7 +48,29 @@ export default function ProductDetailsPage() {
             }
         }
         if (productid) fetchProduct()
+
+        if (productid) {
+            const savedFavorites = localStorage.getItem('favorites')
+            const favorites: string[] = savedFavorites ? JSON.parse(savedFavorites) : []
+            setIsFavorite(favorites.includes(productid))
+        }
     }, [productid])
+
+    const toggleFavorite = () => {
+        if (!productid) return
+
+        const savedFavorites = localStorage.getItem('favorites')
+        let favorites: string[] = savedFavorites ? JSON.parse(savedFavorites) : []
+
+        if (isFavorite) {
+            favorites = favorites.filter(id => id !== productid)
+        } else {
+            favorites.push(productid)
+        }
+
+        localStorage.setItem('favorites', JSON.stringify(favorites))
+        setIsFavorite(!isFavorite)
+    }
 
     const handleAddToCart = () => {
         if (product) {
@@ -172,7 +196,7 @@ export default function ProductDetailsPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <div className="text-3xl font-bold text-purple-600">{product.price ? `€${product.price.toFixed(2)}` : product.originalPrice}</div>
+                            <div className="text-3xl font-bold text-purple-600">{product.price ? `€${Number(product.price).toFixed(2)}` : product.originalPrice}</div>
                             {product.originalPrice && product.price && (
                                 <div className="text-lg text-gray-500 line-through">{product.originalPrice}</div>
                             )}
@@ -201,6 +225,17 @@ export default function ProductDetailsPage() {
                                 >
                                     <ShoppingCart className="h-5 w-5" />
                                     <span>In den Warenkorb</span>
+                                </button>
+                                <button
+                                    onClick={toggleFavorite}
+                                    className={`p-3 rounded-lg font-semibold transition-all ${
+                                        isFavorite
+                                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    }`}
+                                    aria-label={isFavorite ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+                                >
+                                    <Heart className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} />
                                 </button>
                             </div>
                             <div className="text-sm text-gray-600">
