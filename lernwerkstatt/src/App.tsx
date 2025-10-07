@@ -13,6 +13,7 @@ import Statistics from "./Dashborad/statistics.tsx"
 import Finanzen from "./Dashborad/finanzen.tsx";
 import Depot from "./Dashborad/lager.tsx"
 import Home from "./page/home"
+import FavoritesPage from "./page/favorites.tsx"
 
 const BackendIP = import.meta.env.BackendIP;
 
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/statistics" element={<Statistics onBack={() => window.history.back()} />} />
                 <Route path="/finanzen" element={<Finanzen onBack={() => window.history.back()} />} />
                 <Route path="/depot" element={<Depot onBack={() => window.history.back()} />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
             </Routes>
             <Footer />
         </Router>
