@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react";
-import { Heart } from "lucide-react";
+import { Star, ShoppingCart, Truck, Shield, RotateCcw, Heart } from "lucide-react";
 import { useWishlist } from "../components/ui/useWishlist";
 const BackendIP = import.meta.env.BackendIP;
 
@@ -28,7 +27,27 @@ export default function ProductDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToWishlist, removeFromWishlist, isInWishlist, setWishlist } = useWishlist();
+
+
+   /*useEffect(() => {
+    const saved = localStorage.getItem("wishlist");
+    if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+            setWishlist(parsed);
+
+
+            console.log("Wishlist geladen:", parsed);
+        }
+    } else {
+        // Wenn kein Eintrag existiert, direkt anlegen
+        localStorage.setItem("wishlist", JSON.stringify([]));
+    }
+}, []);
+
+*/
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -48,6 +67,19 @@ export default function ProductDetailsPage() {
         setLoading(false);
       }
     };
+    const saved = localStorage.getItem("wishlist");
+    if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+            setWishlist(parsed);
+
+
+            console.log("Wishlist geladen:", parsed);
+        }
+    } else {
+        // Wenn kein Eintrag existiert, direkt anlegen
+        localStorage.setItem("wishlist", JSON.stringify([]));
+    }
     if (productid) fetchProduct();
   }, [productid]);
 
