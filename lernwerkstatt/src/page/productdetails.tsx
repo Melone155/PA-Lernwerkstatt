@@ -29,25 +29,6 @@ export default function ProductDetailsPage() {
   const [selectedImage, setSelectedImage] = useState<string>("");
   const { addToWishlist, removeFromWishlist, isInWishlist, setWishlist } = useWishlist();
 
-
-   /*useEffect(() => {
-    const saved = localStorage.getItem("wishlist");
-    if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-            setWishlist(parsed);
-
-
-            console.log("Wishlist geladen:", parsed);
-        }
-    } else {
-        // Wenn kein Eintrag existiert, direkt anlegen
-        localStorage.setItem("wishlist", JSON.stringify([]));
-    }
-}, []);
-
-*/
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
