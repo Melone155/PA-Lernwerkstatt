@@ -24,6 +24,7 @@ const WishlistPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const BackendIP = import.meta.env.BackendIP;
 
 
   useEffect(() => {
@@ -31,7 +32,7 @@ const WishlistPage: React.FC = () => {
       const fetchProduct = async () => {
         try {
           const res = await fetch(
-            `http://${BackendIP}:5000/product/getproduct`,
+            `http://${BackendIP}:5000/wishlist`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -41,6 +42,8 @@ const WishlistPage: React.FC = () => {
           if (!res.ok) throw new Error("Produkt nicht gefunden");
           const data = await res.json();
           setProducts(data);
+
+          
           // Setze das Hauptbild als ausgewähltes Bild
           setSelectedImage(data.mainImage || data.image || "");
         } catch (err: any) {

@@ -3,6 +3,7 @@ import express from "express";
 import { connectDB } from "./dbconnection.js";
 import product from './product.js';
 import stats from "./stats.js";
+import  wishlist from "./wishlist.js"
 
 const app = express();
 const PORT = 5000;
@@ -26,4 +27,5 @@ await connectDB();
 
 app.use('/product', product);
 app.use('/stats', stats);
+app.use('/wishlist', wishlist);
 
