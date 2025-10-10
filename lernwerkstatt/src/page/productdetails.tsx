@@ -7,20 +7,20 @@ import {useWishlist} from "../components/ui/useWishlist.tsx";
 const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
-  _id: string;
-  name: string;
-  price?: number;
-  originalPrice?: string;
-  image: string;
-  mainImage?: string;
-  images?: string[];
-  rating?: number;
-  reviews?: number;
-  description?: string;
-  features?: string[];
-  specs?: Record<string, string>;
-  stock?: number;
-  category?: string;
+    _id: string;
+    name: string;
+    price?: number;
+    originalPrice?: string;
+    image: string;
+    mainImage?: string;
+    images?: string[];
+    rating?: number;
+    reviews?: number;
+    description?: string;
+    features?: string[];
+    specs?: Record<string, string>;
+    stock?: number;
+    category?: string;
 }
 
 export default function ProductDetailsPage() {

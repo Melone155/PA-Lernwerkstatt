@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {ShoppingCart, Star} from "lucide-react";
 
 // Backend-IP
 const BackendIP = import.meta.env.BackendIP;
@@ -76,6 +77,10 @@ const RecommendedProducts: React.FC = () => {
         return () => { alive = false; };
     }, [productid]);
 
+    const handleClickTrack = async () => {
+        try { await fetch(`http://${BackendIP}:5000/product/track/click`, { method: 'POST' }); } catch {}
+    }
+
     // EMPFEHLUNGEN
     // "zeige bis zu 4 andere Produkte, die mindestens EIN Kategorie-Schlagwort mit dem aktuellen teilen"
     const recommendations = useMemo(() => {
@@ -100,36 +105,70 @@ const RecommendedProducts: React.FC = () => {
 
     return (
         <section className="mt-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Passende Alternativen</h3>
-
             {(!current || recommendations.length === 0) && (
                 <div className="text-sm text-gray-500">Keine passenden Alternativen gefunden.</div>
             )}
 
             {current && recommendations.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {recommendations.map((prod) => (
+                    {recommendations.map((product) => (
                         <div
-                            key={prod._id}
-                            className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer"
-                            onClick={() => navigate(`/productdetails/${prod._id}`)}
+                            key={product._id}
+                            className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group w-full max-w-[300px] mx-auto"
                         >
-                            <div className="rounded-xl overflow-hidden h-40 bg-gray-100 mb-3">
-                                {(prod.mainImage || prod.image) && (
+                            <div className="relative overflow-hidden rounded-t-2xl h-48 bg-gray-100">
+                                {(product.mainImage || product.image) ? (
                                     <img
-                                        src={prod.mainImage || prod.image}
-                                        alt={prod.name}
-                                        className="w-full h-full object-cover"
+                                        src={product.mainImage || product.image}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                     />
-                                )}
+                                ) : null}
+                                <button className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white">
+                                    <ShoppingCart className="h-4 w-4 text-gray-700" />
+                                </button>
                             </div>
 
-                            <div className="font-semibold text-gray-900 leading-snug h-12 overflow-hidden">
-                                {prod.name}
-                            </div>
+                            <div className="p-6">
+                                <h3 className="font-bold text-gray-900 text-lg mb-3">
+                                    {product._id ? (
+                                        <button
+                                            className="hover:underline hover:text-purple-700 transition-colors"
+                                            onClick={async () => { await handleClickTrack(); navigate(`/productdetails/${product._id}`) }}
+                                        >
+                                            {product.name}
+                                        </button>
+                                    ) : (
+                                        product.name
+                                    )}
+                                </h3>
 
-                            <div className="mt-1 text-purple-600 font-bold">
-                                {typeof prod.price === "number" ? `${prod.price} €` : `${prod.price ?? "-" } €`}
+                                <div className="flex items-center mb-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className={`h-5 w-5 ${
+                                                Number(product.rating) && i < Math.floor(Number(product.rating))
+                                                    ? 'text-yellow-400 fill-current'
+                                                    : 'text-gray-300'
+                                            }`}
+                                        />
+                                    ))}
+                                    <span className="text-sm text-gray-600 ml-2">({product.rating ?? '-'})</span>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <div className="text-2xl font-extrabold text-purple-600">{product.price} €</div>
+                                    </div>
+                                    <button
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105"
+                                        onClick={async () => { if (product._id) { await handleClickTrack(); navigate(`/productdetails/${product._id}`) } }}
+                                        disabled={!product._id}
+                                    >
+                                        Kaufen
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
