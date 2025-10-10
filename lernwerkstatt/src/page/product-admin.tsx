@@ -9,8 +9,8 @@ export default function ProductAdminPage() {
         image: "",
         mainImage: "",
         images: [""],
-        rating: 0,
-        reviews: 0,
+        rating: 0.0,
+        reviews: 0.0,
         description: "",
         category: [""],
         stock: 0,
@@ -96,9 +96,9 @@ export default function ProductAdminPage() {
                 features: filteredFeatures,
                 images: filteredImages,
                 mainImage: product.mainImage || filteredImages[0] || "",
-                price: parseFloat(product.price) || 0,
-                rating: parseFloat(product.rating.toString()) || 0,
-                reviews: parseInt(product.reviews.toString()) || 0,
+                price: product.price || "0",
+                rating: product.rating.toString() || "0",
+                reviews: product.reviews.toString() || "0",
                 stock: parseInt(product.stock.toString()) || 0,
                 category: categories || [""]
             }

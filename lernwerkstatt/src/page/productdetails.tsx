@@ -218,9 +218,7 @@ export default function ProductDetailsPage() {
 
             <div className="space-y-2">
               <div className="text-3xl font-bold text-purple-600">
-                {product.price
-                  ? `€${product.price.toFixed(2)}`
-                  : product.originalPrice}
+                {product.price}
               </div>
               {product.originalPrice && product.price && (
                 <div className="text-lg text-gray-500 line-through">
