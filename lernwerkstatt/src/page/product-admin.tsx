@@ -6,36 +6,16 @@ export default function ProductAdminPage() {
     const [product, setProduct] = useState({
         name: "",
         price: "",
-        image: "",
         mainImage: "",
         images: [""],
-        rating: 0.0,
-        reviews: 0.0,
+        rating: 0,
+        reviews: 0,
         description: "",
-        category: [""],
+        category: "",
         stock: 0,
         features: [""],
         specs: [{ key: "", value: "" }]
     })
-    const [inputValue, setInputValue] = useState("");
-    const [categories, setCategories] = useState<string[]>([]);
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if ((e.key === "Enter" || e.key === "," || e.key === " ") && inputValue.trim() !== "") {
-            e.preventDefault();
-            const newCategory = inputValue.trim();
-
-            if (!categories.includes(newCategory)) {
-                setCategories([...categories, newCategory]);
-            }
-
-            setInputValue("");
-        }
-    };
-
-    const removeCategory = (cat: string) => {
-        setCategories(categories.filter(c => c !== cat));
-    };
 
     const addFeature = () => {
         setProduct(p => ({ ...p, features: [...p.features, ""] }))
@@ -94,17 +74,13 @@ export default function ProductAdminPage() {
                 ...product,
                 specs: specsObject,
                 features: filteredFeatures,
-                images: filteredImages,
                 mainImage: product.mainImage || filteredImages[0] || "",
                 price: product.price || "0",
-                rating: product.rating.toString() || "0",
-                reviews: product.reviews.toString() || "0",
-                stock: parseInt(product.stock.toString()) || 0,
-                category: categories || [""]
+                rating: parseFloat(product.rating.toString()) || 0,
+                reviews: parseInt(product.reviews.toString()) || 0,
+                stock: parseInt(product.stock.toString()) || 0
             }
-
-            console.log('Product Data:', productData)
-
+            
             const response = await fetch(`http://${BackendIP}:5000/product/create`, {
                 method: 'POST',
                 headers: {
@@ -119,13 +95,12 @@ export default function ProductAdminPage() {
                 setProduct({
                     name: "",
                     price: "",
-                    image: "",
                     mainImage: "",
                     images: [""],
                     rating: 0,
                     reviews: 0,
                     description: "",
-                    category: [""],
+                    category: "",
                     stock: 0,
                     features: [""],
                     specs: [{ key: "", value: "" }]
@@ -250,34 +225,13 @@ export default function ProductAdminPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-purple-700 mb-1">
-                                Kategorien
-                            </label>
-
-                            <div className="flex flex-wrap items-center gap-2 border border-purple-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-cyan-400">
-                                {categories.map((cat, index) => (
-                                    <span
-                                        key={index}
-                                        className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full flex items-center gap-2">
-                                        {cat}
-                                        <button
-                                            type="button"
-                                            onClick={() => removeCategory(cat)}
-                                            className="text-purple-500 hover:text-red-500">
-                                          ✕
-                                        </button>
-                                    </span>
-                                ))}
-
-                                <input
-                                    type="text"
-                                    className="flex-grow min-w-[100px] focus:outline-none"
-                                    placeholder="Kategorie hinzufügen..."
-                                    value={inputValue}
-                                    onChange={e => setInputValue(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                />
-                            </div>
+                            <label className="block text-sm font-medium text-purple-700 mb-1">Kategorie</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                value={product.category}
+                                onChange={e => setProduct(p => ({ ...p, category: e.target.value }))}
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-purple-700 mb-1">Features</label>
@@ -364,7 +318,7 @@ export default function ProductAdminPage() {
                     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full">
                         <div className="relative overflow-hidden rounded-t-2xl h-48 bg-gray-100">
                             <img
-                                src={product.mainImage || product.image}
+                                src={product.mainImage}
                                 alt={product.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                             />
@@ -384,9 +338,6 @@ export default function ProductAdminPage() {
                                 <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <div className="text-2xl font-extrabold text-purple-600">{product.price}</div>
-                                </div>
                                 <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-transform duration-200 hover:scale-105">
                                     Kaufen
                                 </button>
