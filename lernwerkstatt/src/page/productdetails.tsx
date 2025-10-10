@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Star, ShoppingCart, Truck, Shield, RotateCcw, Heart } from "lucide-react";
-import { useWishlist } from "../components/ui/useWishlist";
+import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import RecommendedProducts from "./RecommendedProducts.tsx";
+
 const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
@@ -339,7 +340,11 @@ export default function ProductDetailsPage() {
             )}
           </div>
         </div>
-      </div>
+      <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Passende Alternativen</h2>
+                    <RecommendedProducts />
+                </div>
+            </div>
     </div>
   );
 }
