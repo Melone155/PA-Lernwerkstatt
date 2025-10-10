@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import {Star, ShoppingCart, Truck, Shield, RotateCcw, Heart} from "lucide-react"
 import RecommendedProducts from "./RecommendedProducts.tsx";
+import {useWishlist} from "../components/ui/useWishlist.tsx";
 
 const BackendIP = import.meta.env.BackendIP;
 
