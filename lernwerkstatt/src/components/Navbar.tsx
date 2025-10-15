@@ -140,7 +140,7 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center space-x-8">
                         <Link to="/" className="hover:text-purple-400 transition-colors duration-200">Home</Link>
                         <Link to="/product/all" className="hover:text-purple-400 transition-colors duration-200">Alle Produkte</Link>
-                        <Link to="/Whishlist" className="hover:text-purple-400 transition-colors duration-200">Whishlist</Link>
+                        <Link to="/wishlist" className="hover:text-purple-400 transition-colors duration-200">Wishlist</Link>
                     </div>
 
                     <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
