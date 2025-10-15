@@ -21,11 +21,8 @@ interface Product {
 }
 
 const WishlistPage: React.FC = () => {
-  const { wishlist, removeFromWishlist } = useWishlist();
+  const { wishlist } = useWishlist();
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const BackendIP = import.meta.env.BackendIP;
   const navigate = useNavigate();
 
@@ -41,21 +38,18 @@ const WishlistPage: React.FC = () => {
           const res = await fetch(`http://${BackendIP}:5000/wishlist`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: wishlist }), // Beispielhaft nur das erste Produkt laden
+            body: JSON.stringify({ id: wishlist }),
           });
           if (!res.ok) throw new Error("Produkt nicht gefunden");
           const data = await res.json();
           setProducts(data);
-
-          // Setze das Hauptbild als ausgewähltes Bild
-          setSelectedImage(data.mainImage || data.image || "");
         } catch (err: any) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
+          console.error('Fehler beim Laden der Produkte:', err.message);
         }
       };
       fetchProduct();
+    } else {
+      setProducts([]);
     }
   }, [wishlist]);
 
