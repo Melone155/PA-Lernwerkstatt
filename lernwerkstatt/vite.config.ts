@@ -7,6 +7,6 @@ export default defineConfig({
         tailwindcss(),
     ],
     define: {
-        'import.meta.env.BackendIP': JSON.stringify(process.env.BACKEND_IP || 'localhost')
+        'import.meta.env.BackendIP': JSON.stringify(process.env.VITE_BACKEND_IP || 'localhost')
     }
 })
