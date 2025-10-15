@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Users,
     MousePointer,
@@ -38,11 +38,6 @@ const Statistics: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         { value: 24, label: '24 Stunden', description: 'Daten in 1-Stunden-Intervallen' }
     ];
 
-    const formattedDay = useMemo(() => {
-        const d = new Date(selectedDate);
-        const pad2 = (n: number) => n.toString().padStart(2, '0');
-        return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
-    }, [selectedDate]);
 
     const loadStats = async () => {
         try {
