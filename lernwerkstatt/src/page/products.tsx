@@ -36,7 +36,7 @@ const ProductCard: React.FC = () => {
                 if (!res.ok) throw new Error('Fehler beim Laden der Produkte');
                 const data = await res.json();
 
-                if (productType && productType !== '*') {
+                if (productType && productType !== 'all') {
                     const filteredProducts = data.filter((product: Product) =>
                         Array.isArray(product.category) &&
                         product.category.some(
