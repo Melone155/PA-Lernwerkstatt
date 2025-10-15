@@ -6,8 +6,10 @@ export default defineConfig({
     define: {
         'import.meta.env.BackendIP': JSON.stringify('localhost')
     },
+    base: '/statistics/',
     plugins: [react(), tailwindcss()],
     build: {
+        outDir: 'dist',
         rollupOptions: {
             output: {
                 assetFileNames: (assetInfo) => {
