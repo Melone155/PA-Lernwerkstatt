@@ -139,9 +139,8 @@ const Navbar = () => {
 
                     <div className="hidden md:flex items-center space-x-8">
                         <Link to="/" className="hover:text-purple-400 transition-colors duration-200">Home</Link>
-                        <Link to="/product/konsolen" className="hover:text-purple-400 transition-colors duration-200">Konsolen</Link>
-                        <Link to="/product/pc" className="hover:text-purple-400 transition-colors duration-200">PC Gaming</Link>
-                        <Link to="/product/zubehör" className="hover:text-purple-400 transition-colors duration-200">Zubehör</Link>
+                        <Link to="/product/all" className="hover:text-purple-400 transition-colors duration-200">Alle Produkte</Link>
+                        <Link to="/Whishlist" className="hover:text-purple-400 transition-colors duration-200">Whishlist</Link>
                     </div>
 
                     <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
