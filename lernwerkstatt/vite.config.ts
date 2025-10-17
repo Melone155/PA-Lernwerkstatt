@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
     define: {
-        'import.meta.env.BackendIP': JSON.stringify('localhost')
+        'import.meta.env.BackendIP': JSON.stringify('192.168.254.12')
     },
     base: '/statistics/',
     plugins: [react(), tailwindcss()],
