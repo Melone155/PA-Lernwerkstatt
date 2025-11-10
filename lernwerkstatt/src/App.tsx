@@ -14,6 +14,7 @@ import Finanzen from "./Dashborad/finanzen.tsx";
 import Depot from "./Dashborad/lager.tsx"
 import Home from "./page/home"
 import Wishlist from "./page/whishlist"
+import LogoPage from "./page/logo-page";
 
 
 const BackendIP = import.meta.env.BackendIP;
@@ -42,6 +43,7 @@ function App() {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/logo" element={<LogoPage />} />
                 <Route path="/product/:productType" element={<Product />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/login" element={<LoginPage />} />
