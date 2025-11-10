@@ -60,7 +60,7 @@ const WishlistPage: React.FC = () => {
       {wishlist.length === 0 ? (
         <p>Keine Produkte auf der Merkliste.</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 py-12">
           {products.map((product) => (
             <div
               key={product._id}
