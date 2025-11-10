@@ -5,15 +5,12 @@ import { Search, ShoppingCart, User, Menu, X, Gamepad2 } from 'lucide-react';
 // Cart Context
 interface CartItem {
     _id: string;
-    name: string;
-    price: number;
-    image: string;
     quantity: number;
 }
 
 interface CartContextType {
     cart: CartItem[];
-    addToCart: (item: CartItem) => void;
+    addToCart: (productId: string, quantity?: number) => void;
     removeFromCart: (id: string) => void;
     updateQuantity: (id: string, quantity: number) => void;
     clearCart: () => void;
@@ -44,17 +41,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('cart', JSON.stringify(cart));
     }, [cart]);
 
-    const addToCart = (item: CartItem) => {
+    const addToCart = (productId: string, quantity: number = 1) => {
         setCart(prevCart => {
-            const existingItem = prevCart.find(cartItem => cartItem._id === item._id);
+            const existingItem = prevCart.find(cartItem => cartItem._id === productId);
             if (existingItem) {
                 return prevCart.map(cartItem =>
-                    cartItem._id === item._id
-                        ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+                    cartItem._id === productId
+                        ? { ...cartItem, quantity: cartItem.quantity + quantity }
                         : cartItem
                 );
             }
-            return [...prevCart, item];
+            return [...prevCart, { _id: productId, quantity }];
         });
     };
 
