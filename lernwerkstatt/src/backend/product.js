@@ -179,47 +179,44 @@ router.post('/track/click', async (req, res) => {
     }
 });
 
-router.post("/similar", async (req, res) => {
-    const { id } = req.body;
+router.post('/rating', async (req, res) => {
+    const { id, rating } = req.body;
 
     try {
-        if (!id) {
-            return res.status(400).json({ message: "Produkt-ID fehlt." });
-        }
-
         await client.connect();
 
-        const mainProduct = await products.findOne({ _id: new ObjectId(id) });
-
-        if (!mainProduct) {
-            return res.status(404).json({ message: "Produkt nicht gefunden." });
+        if (!id) {
+            return res.status(400).json({ message: "Produkt ID fehlt" });
         }
 
-        const { category } = mainProduct;
-
-        if (!Array.isArray(category) || category.length === 0) {
-            return res
-                .status(400)
-                .json({ message: "Dieses Produkt hat keine Kategorien." });
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ message: "Ungültige Bewertung, muss zwischen 1 und 5 sein" });
         }
 
-        const similarProducts = await products
-            .find({
-                _id: { $ne: new ObjectId(id) },
-                category: { $in: category }
-            })
-            .limit(10) // z. B. auf 10 begrenzen
-            .toArray();
+        const product = await products.findOne({ _id: new ObjectId(id) });
 
-        // 4️⃣ Ergebnis zurückgeben
-        res.status(200).json(similarProducts);
+        if (!product) {
+            return res.status(404).json({ message: "Kein Produkt gefunden" });
+        }
+
+        const currentAverage = product.averageRating || 0;
+        const currentCount = product.ratingCount || 0;
+
+        const newAverage = ((currentAverage * currentCount) + rating) / (currentCount + 1);
+
+        await products.updateOne(
+            { _id: new ObjectId(id) },
+            {
+                $set: { averageRating: parseFloat(newAverage.toFixed(1)) },
+                $inc: { ratingCount: 1 }
+            }
+        );
+
+        return res.json({ ok: true });
+
     } catch (error) {
-        console.error("Fehler beim Laden ähnlicher Produkte:", error);
-        res
-            .status(500)
-            .json({ message: "Fehler beim Laden ähnlicher Produkte", error: error.message });
-    } finally {
-        await client.close();
+        console.error('Fehler beim Speichern der Bewertung:', error);
+        res.status(500).json({ message: 'Fehler beim Speichern der Bewertung', error: error.message });
     }
 });
 

@@ -26,6 +26,8 @@ export default function ProductDetailsPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [selectedImage, setSelectedImage] = useState<string>("")
+    const [rating, setRating] = useState<number>(0);
+
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -75,6 +77,21 @@ export default function ProductDetailsPage() {
 
             localStorage.setItem('cart', JSON.stringify(cart));
             window.dispatchEvent(new Event('storage'));
+        }
+    }
+
+    const handleRating = async () => {
+        try {
+            const res = await fetch(`http://${BackendIP}:5000/product/setrating`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: rating, id: productid })
+            })
+            if (!res.ok) throw new Error('Fehler beim Senden der Bewertung')
+            const data = await res.json()
+            console.log(data)
+        } catch (err: any) {
+            setError(err.message)
         }
     }
 
@@ -239,6 +256,54 @@ export default function ProductDetailsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Product Ranking */}
+            <div className="container mx-auto px-4 pb-12">
+                <div className="bg-gradient-to-br from-white to-purple-50 rounded-3xl shadow-xl p-8 border border-purple-100">
+                    <div className="max-w-md mx-auto space-y-6">
+                        <div className="text-center space-y-2">
+                            <h2 className="text-2xl font-bold text-gray-900">Wie gefällt dir dieses Produkt?</h2>
+                            <p className="text-sm text-gray-600">Teile deine Meinung mit anderen Kunden</p>
+                        </div>
+
+                        <div className="flex justify-center items-center space-x-2">
+                            {Array.from({ length: 5 }).map((_, i) => {
+                                const starNumber = i + 1;
+                                return (
+                                    <button
+                                        key={i}
+                                        onClick={() => setRating(starNumber)}
+                                        className="group transition-transform hover:scale-110 active:scale-95 focus:outline-none"
+                                        aria-label={`${starNumber} Stern${starNumber > 1 ? 'e' : ''}`}
+                                    >
+                                        <Star
+                                            size={40}
+                                            className={`transition-all duration-200 ${
+                                                starNumber <= rating
+                                                    ? "text-yellow-400 fill-yellow-400 drop-shadow-lg"
+                                                    : "text-gray-300 group-hover:text-gray-400 group-hover:scale-110"
+                                            }`}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {rating > 0 && (
+                            <div className="text-center animate-fadeIn">
+                                <button
+                                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
+                                    onClick={() => handleRating()}
+                                >
+                                    Bewertung absenden
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
         </div>
+
     )
 }
