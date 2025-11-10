@@ -1,4 +1,3 @@
-// src/components/ui/useWishlist.ts
 import { useState, useEffect } from "react";
 
 export function useWishlist() {

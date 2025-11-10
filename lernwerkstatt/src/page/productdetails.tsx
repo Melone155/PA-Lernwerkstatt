@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import {Star, ShoppingCart, Truck, Shield, RotateCcw, Heart} from "lucide-react"
 import RecommendedProducts from "./RecommendedProducts.tsx";
+import { useWishlist } from "../components/ui/useWishlist.tsx";
 
 const BackendIP = import.meta.env.BackendIP;
 
@@ -29,28 +30,42 @@ export default function ProductDetailsPage() {
     const [error, setError] = useState<string | null>(null)
     const [selectedImage, setSelectedImage] = useState<string>("")
     const [rating, setRating] = useState<number>(0);
+    const { addToWishlist, removeFromWishlist, isInWishlist, setWishlist } = useWishlist();
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const res = await fetch(`http://${BackendIP}:5000/product/getproduct`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: productid })
-                })
-                if (!res.ok) throw new Error('Produkt nicht gefunden')
-                const data = await res.json()
-                setProduct(data)
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: productid }),
+                });
+                if (!res.ok) throw new Error("Produkt nicht gefunden");
+                const data = await res.json();
+                setProduct(data);
                 // Setze das Hauptbild als ausgewähltes Bild
-                setSelectedImage(data.mainImage || data.image || "")
+                setSelectedImage(data.mainImage || data.image || "");
             } catch (err: any) {
-                setError(err.message)
+                setError(err.message);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
+        };
+        const saved = localStorage.getItem("wishlist");
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                setWishlist(parsed);
+
+
+                console.log("Wishlist geladen:", parsed);
+            }
+        } else {
+            // Wenn kein Eintrag existiert, direkt anlegen
+            localStorage.setItem("wishlist", JSON.stringify([]));
         }
-        if (productid) fetchProduct()
-    }, [productid])
+        if (productid) fetchProduct();
+    }, [productid]);
 
     const handleAddToCart = () => {
         if (product) {
@@ -212,9 +227,10 @@ export default function ProductDetailsPage() {
                             </div>
                         </div>
 
+
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <button 
+                                <button
                                     onClick={handleAddToCart}
                                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
                                 >
@@ -222,8 +238,36 @@ export default function ProductDetailsPage() {
                                     <span>In den Warenkorb</span>
                                 </button>
                             </div>
+                            <button
+                                onClick={() =>
+                                    product &&
+                                    (isInWishlist(product._id)
+                                        ? removeFromWishlist(product._id)
+                                        : addToWishlist(product._id))
+                                }
+                                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 border ${
+                                    isInWishlist(product._id)
+                                        ? "bg-red-500 text-white hover:bg-red-600 border-red-600"
+                                        : "bg-white text-purple-600 border-purple-400 hover:bg-purple-50"
+                                }`}
+                            >
+                                <Heart
+                                    className={`h-5 w-5 ${
+                                        isInWishlist(product._id)
+                                            ? "fill-current text-white"
+                                            : "text-purple-600"
+                                    }`}
+                                />
+                                <span>
+                  {isInWishlist(product._id)
+                      ? "Von Merkliste entfernen"
+                      : "Zur Merkliste hinzufügen"}
+                </span>
+                            </button>
+
                             <div className="text-sm text-gray-600">
-                                <span className="font-medium">Verfügbar:</span> {product.stock ?? 0} Stück auf Lager
+                                <span className="font-medium">Verfügbar:</span>{" "}
+                                {product.stock ?? 0} Stück auf Lager
                             </div>
                         </div>
 
