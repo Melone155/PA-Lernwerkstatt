@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { Star, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import RecommendedProducts from "./RecommendedProducts.tsx";
+
 const BackendIP = import.meta.env.BackendIP;
 
 interface Product {
@@ -245,61 +247,77 @@ export default function ProductDetailsPage() {
 
                 {/* Spezifikationen */}
                 <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Technische Spezifikationen</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        Technische Spezifikationen
+                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {product.specs && Object.entries(product.specs).length > 0 ? Object.entries(product.specs).map(([key, value]) => (
-                            <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                                <span className="font-medium text-gray-700">{key}</span>
-                                <span className="text-gray-600">{value}</span>
-                            </div>
-                        )) : <div className="text-sm text-gray-400">Keine Spezifikationen hinterlegt</div>}
-                    </div>
-                </div>
-            </div>
-
-            {/* Product Ranking */}
-            <div className="container mx-auto px-4 pb-12">
-                <div className="bg-gradient-to-br from-white to-purple-50 rounded-3xl shadow-xl p-8 border border-purple-100">
-                    <div className="max-w-md mx-auto space-y-6">
-                        <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-bold text-gray-900">Wie gefällt dir dieses Produkt?</h2>
-                            <p className="text-sm text-gray-600">Teile deine Meinung mit anderen Kunden</p>
-                        </div>
-
-                        <div className="flex justify-center items-center space-x-2">
-                            {Array.from({ length: 5 }).map((_, i) => {
-                                const starNumber = i + 1;
-                                return (
-                                    <button
-                                        key={i}
-                                        onClick={() => setRating(starNumber)}
-                                        className="group transition-transform hover:scale-110 active:scale-95 focus:outline-none"
-                                        aria-label={`${starNumber} Stern${starNumber > 1 ? 'e' : ''}`}
-                                    >
-                                        <Star
-                                            size={40}
-                                            className={`transition-all duration-200 ${
-                                                starNumber <= rating
-                                                    ? "text-yellow-400 fill-yellow-400 drop-shadow-lg"
-                                                    : "text-gray-300 group-hover:text-gray-400 group-hover:scale-110"
-                                            }`}
-                                        />
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {rating > 0 && (
-                            <div className="text-center animate-fadeIn">
-                                <button
-                                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
-                                    onClick={() => handleRating()}
+                        {product.specs && Object.entries(product.specs).length > 0 ? (
+                            Object.entries(product.specs).map(([key, value]) => (
+                                <div
+                                    key={key}
+                                    className="flex justify-between py-2 border-b border-gray-100"
                                 >
-                                    Bewertung absenden
-                                </button>
+                                    <span className="font-medium text-gray-700">{key}</span>
+                                    <span className="text-gray-600">{value}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-sm text-gray-400">
+                                Keine Spezifikationen hinterlegt
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Product Ranking */}
+                <div className="container mx-auto px-4 pb-12">
+                    <div className="bg-gradient-to-br from-white to-purple-50 rounded-3xl shadow-xl p-8 border border-purple-100">
+                        <div className="max-w-md mx-auto space-y-6">
+                            <div className="text-center space-y-2">
+                                <h2 className="text-2xl font-bold text-gray-900">Wie gefällt dir dieses Produkt?</h2>
+                                <p className="text-sm text-gray-600">Teile deine Meinung mit anderen Kunden</p>
+                            </div>
+
+                            <div className="flex justify-center items-center space-x-2">
+                                {Array.from({ length: 5 }).map((_, i) => {
+                                    const starNumber = i + 1;
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => setRating(starNumber)}
+                                            className="group transition-transform hover:scale-110 active:scale-95 focus:outline-none"
+                                            aria-label={`${starNumber} Stern${starNumber > 1 ? 'e' : ''}`}
+                                        >
+                                            <Star
+                                                size={40}
+                                                className={`transition-all duration-200 ${
+                                                    starNumber <= rating
+                                                        ? "text-yellow-400 fill-yellow-400 drop-shadow-lg"
+                                                        : "text-gray-300 group-hover:text-gray-400 group-hover:scale-110"
+                                                }`}
+                                            />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {rating > 0 && (
+                                <div className="text-center animate-fadeIn">
+                                    <button
+                                        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
+                                        onClick={() => handleRating()}
+                                    >
+                                        Bewertung absenden
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Passende Alternativen</h2>
+                    <RecommendedProducts />
                 </div>
             </div>
 
