@@ -179,4 +179,48 @@ router.post('/track/click', async (req, res) => {
     }
 });
 
+router.post("/similar", async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        if (!id) {
+            return res.status(400).json({ message: "Produkt-ID fehlt." });
+        }
+
+        await client.connect();
+
+        const mainProduct = await products.findOne({ _id: new ObjectId(id) });
+
+        if (!mainProduct) {
+            return res.status(404).json({ message: "Produkt nicht gefunden." });
+        }
+
+        const { category } = mainProduct;
+
+        if (!Array.isArray(category) || category.length === 0) {
+            return res
+                .status(400)
+                .json({ message: "Dieses Produkt hat keine Kategorien." });
+        }
+
+        const similarProducts = await products
+            .find({
+                _id: { $ne: new ObjectId(id) },
+                category: { $in: category }
+            })
+            .limit(10) // z. B. auf 10 begrenzen
+            .toArray();
+
+        // 4️⃣ Ergebnis zurückgeben
+        res.status(200).json(similarProducts);
+    } catch (error) {
+        console.error("Fehler beim Laden ähnlicher Produkte:", error);
+        res
+            .status(500)
+            .json({ message: "Fehler beim Laden ähnlicher Produkte", error: error.message });
+    } finally {
+        await client.close();
+    }
+});
+
 export default router;
