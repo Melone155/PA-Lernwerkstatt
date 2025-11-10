@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 
+const BackendIP = import.meta.env.BackendIP;
+
+interface CartStorageItem {
+    _id: string;
+    quantity: number;
+}
+
 interface CartItem {
     _id: string;
     name: string;
@@ -14,17 +21,56 @@ export default function CartPage() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const savedCart = localStorage.getItem('cart');
-        if (savedCart) {
-            setCart(JSON.parse(savedCart));
-        }
-        setLoading(false);
+        const loadCartWithProducts = async () => {
+            try {
+                const savedCart = localStorage.getItem('cart');
+                if (savedCart) {
+                    const cartItems: CartStorageItem[] = JSON.parse(savedCart);
+                    
+                    // Lade Produktdaten für jede _id
+                    const cartWithProducts = await Promise.all(
+                        cartItems.map(async (item) => {
+                            try {
+                                const res = await fetch(`http://${BackendIP}:5000/product/getproduct`, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ id: item._id }),
+                                });
+                                if (!res.ok) throw new Error("Produkt nicht gefunden");
+                                const productData = await res.json();
+                                return {
+                                    _id: item._id,
+                                    name: productData.name,
+                                    price: productData.price || 0,
+                                    image: productData.image || productData.mainImage,
+                                    quantity: item.quantity
+                                };
+                            } catch (error) {
+                                console.error(`Fehler beim Laden von Produkt ${item._id}:`, error);
+                                return null;
+                            }
+                        })
+                    );
+                    
+                    // Filtere null-Werte (fehlgeschlagene Requests)
+                    setCart(cartWithProducts.filter((item): item is CartItem => item !== null));
+                }
+            } catch (error) {
+                console.error("Fehler beim Laden des Warenkorbs:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadCartWithProducts();
     }, [])
 
     const removeFromCart = (id: string) => {
         const newCart = cart.filter(item => item._id !== id);
         setCart(newCart);
-        localStorage.setItem('cart', JSON.stringify(newCart));
+        // Speichere nur _id und quantity
+        const storageCart = newCart.map(item => ({ _id: item._id, quantity: item.quantity }));
+        localStorage.setItem('cart', JSON.stringify(storageCart));
         window.dispatchEvent(new Event('storage'));
     }
 
@@ -37,7 +83,9 @@ export default function CartPage() {
             item._id === id ? { ...item, quantity } : item
         );
         setCart(newCart);
-        localStorage.setItem('cart', JSON.stringify(newCart));
+        // Speichere nur _id und quantity
+        const storageCart = newCart.map(item => ({ _id: item._id, quantity: item.quantity }));
+        localStorage.setItem('cart', JSON.stringify(storageCart));
         window.dispatchEvent(new Event('storage'));
     }
 
